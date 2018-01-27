@@ -31,10 +31,45 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QTableWidget" name="currentOrderList"/>
+        <widget class="QTableWidget" name="currentOrderList">
+         <row>
+          <property name="text">
+           <string>New Row</string>
+          </property>
+         </row>
+         <column>
+          <property name="text">
+           <string>Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Price</string>
+          </property>
+         </column>
+        </widget>
        </item>
        <item>
-        <widget class="QTableWidget" name="accountsList"/>
+        <widget class="QTableWidget" name="accountsList">
+         <property name="gridStyle">
+          <enum>Qt::SolidLine</enum>
+         </property>
+         <row>
+          <property name="text">
+           <string>New Row</string>
+          </property>
+         </row>
+         <column>
+          <property name="text">
+           <string>Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Balance</string>
+          </property>
+         </column>
+        </widget>
        </item>
       </layout>
      </widget>

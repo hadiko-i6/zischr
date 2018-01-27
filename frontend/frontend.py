@@ -2,55 +2,68 @@
 
 import sys
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QTableWidgetItem
-from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QTableWidgetItem, QHeaderView
+from PyQt5.QtCore import QTimer, Qt
 
 from frontendgui import Ui_MainWindow
-
 import math
+
+import grpc
+import main_pb2
+import main_pb2_grpc
 
 class ProgramState():
     class orderEntry:
         def __init__(self):
-            self.name = "N/A"
-            self.price = 0.0
-            self.amount = 0
+            self.DisplayName = "N/A"
+            self.UnitPrice = 0.0
 
-    class accountsEntry:
+    class accountEntry:
         def __init__(self):
-            self.name = "Max Mustermann"
-            self.balance = 0.0
+            self.ID = ""
+            self.DisplayName = "Max Mustermann"
+            self.Balance = 0.0
 
     def __init__(self):
-        self.orderList = []
-        self.accountList = []
-        self.buttonList = []
-
-    def pollState(self):
-        print("'polling'")
+        self.OrderList = []
+        self.Accounts = []
 
 class i6MainWindow(QMainWindow):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, terminalId, *args, **kwargs):
         super(i6MainWindow, self).__init__(*args, **kwargs)
+
+        self.terminalId = terminalId
 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        self.state = ProgramState()
-        self.state.pollState()
-        self.state.buttonList = ["goo", "bar", "Joe", "Luke", "Christian", "Flurgeist", "Dreckige Toilette"]    # TEMP DEV LINE TODO: REMOVE
-        s1 = ProgramState.orderEntry()
-        s1.name = "HoLi"
-        s1.amount = 10
-        s1.price = 0.85
-        self.state.orderList = [
+        self.ui.currentOrderList.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.ui.currentOrderList.horizontalHeader().setStretchLastSection(True)
+        self.ui.accountsList.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.ui.accountsList.horizontalHeader().setStretchLastSection(True)
+
+        self.state = main_pb2.TerminalStateResponse()
+        #self.state.buttonList = ["goo", "bar", "Joe", "Luke", "Christian", "Flurgeist", "Dreckige Toilette"]    # TEMP DEV LINE TODO: REMOVE
+        s1 = main_pb2.TerminalStateResponse.Order()
+        s1.DisplayName = "Holi aber echt langer name lolololo  asdasdfasdfgkj"
+        s1.UnitPrice = int(85)
+        self.state.OrderList.extend([
             s1,
             s1,
             s1
-        ]
+        ])
+
+        a1 = main_pb2.TerminalStateResponse.Account()
+        a1.ID = "fuck"
+        a1.DisplayName = "Dein Gesicht"
+        a1.Balance = 1234
+        self.state.Accounts.extend([a1])
+
+        self.channel = grpc.insecure_channel('localhost:50051')
+        self.backendStub = main_pb2_grpc.TerminalBackendStub(self.channel)
 
         self.buttons = []
-        self.lastButtonList = []    # Stores the last list of button names to be updated
+        self.lastAccounts = []    # Stores the last list of button names to be updated
 
         self.updateButtons()
         self.updateOrdersList()
@@ -60,60 +73,100 @@ class i6MainWindow(QMainWindow):
         self.timer.start(1000)
 
     def timerCB(self, *args):
-        self.state.pollState()
-        self.updateButtons()
-        #self.updateOrdersList
-        #self.updateAccountsList
+        self.pollState()
+
+        #self.updateButtons()
+        self.updateOrdersList()
+        self.updateAccountsList()
+
+    def pollState(self):
+        try:
+            request = main_pb2.TerminalStateRequest()
+            request.TerminalID = self.terminalId
+            self.state = self.backendStub.GetState(request)
+        except Exception as e:
+            print(e)
+
 
     def updateButtons(self):
-        if self.state.buttonList == self.lastButtonList:    # Current button state is equal to previous, no need to update
+        if self.lastAccounts == list(self.state.Accounts):    # Current button state is equal to previous, no need to update
             return
 
-        for button in self.buttons:     # Delete old buttons
+        # Delete old buttons
+        for button in self.buttons:
             self.ui.buttonContainer.widget().layout().removeWidget(button)
             button.deleteLater()
 
         self.buttons = []
 
-        for i in range(len(self.state.buttonList)):
-            name = self.state.buttonList[i]
-            newButton = QPushButton(name)
+        for i in range(len(self.state.Accounts)):
+            account = self.state.Accounts[i]
+            newButton = QPushButton(account.DisplayName)
+            newButton.userid = account.ID   # Append backend userid to button so we know who to bill if button is pressed
             self.ui.buttonContainer.widget().layout().addWidget(newButton, math.floor(i/2), i % 2)     # Add buttons in zig-zag pattern
 
             self.buttons.append(newButton)
 
             newButton.clicked.connect(self.NameButtonPressed)
 
+        self.lastAccounts = list(self.state.Accounts)
+
     def updateOrdersList(self):
         self.ui.currentOrderList.clear()
 
-        self.ui.currentOrderList.setColumnCount(4)
-        self.ui.currentOrderList.setRowCount(len(self.state.orderList))
+        self.ui.currentOrderList.setColumnCount(2)
+        self.ui.currentOrderList.setRowCount(len(self.state.OrderList))
 
-        for i in range(len(self.state.orderList)):
-            order = self.state.orderList[i]
-            nameWidget = QTableWidgetItem(order.name)
+        self.ui.currentOrderList.setHorizontalHeaderLabels(["Name", "Price"])
+
+        for i in range(len(self.state.OrderList)):
+            order = self.state.OrderList[i]
+            nameWidget = QTableWidgetItem(order.DisplayName)
             self.ui.currentOrderList.setItem(i, 0, nameWidget)
-            amountWidget = QTableWidgetItem("%.2f" % order.amount)
-            self.ui.currentOrderList.setItem(i, 1, amountWidget)
-            priceWdiget = QTableWidgetItem("%.2f" % order.price)
-            self.ui.currentOrderList.setItem(i, 2, priceWdiget)
-            totalWidget = QTableWidgetItem("%.2f" % (order.price * order.amount))
-            self.ui.currentOrderList.setItem(i, 3, totalWidget)
+
+            priceWdiget = QTableWidgetItem("€%.2f" % (order.UnitPrice / 100))
+            priceWdiget.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            self.ui.currentOrderList.setItem(i, 1, priceWdiget)
+
+        # TODO: Totals Entry at bottom
+
+    def updateAccountsList(self):
+        self.ui.accountsList.clear()
+
+        self.ui.accountsList.setColumnCount(2)
+        self.ui.accountsList.setRowCount(len(self.state.Accounts))
+
+        self.ui.accountsList.setHorizontalHeaderLabels(["Name", "Balance"])
+
+        for i in range(len(self.state.Accounts)):
+            account = self.state.Accounts[i]
+            nameWidget = QTableWidgetItem(account.DisplayName)
+            self.ui.accountsList.setItem(i, 0, nameWidget)
+
+            balanceWidget = QTableWidgetItem("€%.2f" % (account.Balance / 100))
+            balanceWidget.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            self.ui.accountsList.setItem(i, 1, balanceWidget)
 
     def NameButtonPressed(self, *args):
         clickedButton = self.sender()    # WTF why isn't this passed as argument?
         clickedIndex = self.buttons.index(clickedButton)
-        print("Clicked: %s %s" % (clickedIndex, clickedButton.text()))
+        print("Clicked: %s %s (%s)" % (clickedIndex, clickedButton.text(), clickedButton.userid))
 
-        # TODO: RPC call to backend to let it know that button i was clicked
+        # TODO: Confirmation dialog
 
+        request = main_pb2.TerminalBuyRequest()
+        request.TerminalID = self.terminalId
+        request.AccountID = clickedButton.userid
+        try:
+            response = self.backendStub.Buy(request)
+        except Exception as e:
+            print(e)
 
-
+        # TODO: Display returned error as modal dialog
 
 
 app = QApplication(sys.argv)
-window = i6MainWindow()
+window = i6MainWindow("Foo")
 
 window.show()
 sys.exit(app.exec_())
