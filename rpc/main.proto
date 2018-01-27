@@ -13,7 +13,20 @@ message TerminalStateRequest {
 }
 
 message TerminalStateResponse {
-    // TODO
+    message OrderEntry {
+        string name = 1;
+        int32 amount = 2;
+        int32 price = 3;
+    }
+
+    message AccountEntry {
+        string name = 1;
+        int32 balance = 2;
+    }
+
+    repeated OrderEntry orderentries = 1;
+    repeated AccountEntry accountentries = 2;
+    repeated string buttonnames = 3;
 }
 
 message TerminalBuyRequest {
