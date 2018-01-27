@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: rgb(46, 52, 54);
+font-size: 20px;</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
@@ -32,6 +36,9 @@
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="QTableWidget" name="currentOrderList">
+         <property name="styleSheet">
+          <string notr="true">color: rgb(238, 238, 236);</string>
+         </property>
          <row>
           <property name="text">
            <string>New Row</string>
@@ -51,6 +58,10 @@
        </item>
        <item>
         <widget class="QTableWidget" name="accountsList">
+         <property name="styleSheet">
+          <string notr="true">color: rgb(238, 238, 236);
+font-size: 12px;</string>
+         </property>
          <property name="gridStyle">
           <enum>Qt::SolidLine</enum>
          </property>
@@ -85,7 +96,7 @@
          <x>0</x>
          <y>0</y>
          <width>477</width>
-         <height>692</height>
+         <height>683</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_2"/>

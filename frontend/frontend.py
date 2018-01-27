@@ -2,8 +2,9 @@
 
 import sys
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QTableWidgetItem, QHeaderView
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QTableWidgetItem, QHeaderView, QAbstractItemView, QTableWidget
 from PyQt5.QtCore import QTimer, Qt
+from PyQt5.QtGui import QResizeEvent
 
 from frontendgui import Ui_MainWindow
 import math
@@ -37,10 +38,10 @@ class i6MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        self.ui.currentOrderList.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-        self.ui.currentOrderList.horizontalHeader().setStretchLastSection(True)
-        self.ui.accountsList.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-        self.ui.accountsList.horizontalHeader().setStretchLastSection(True)
+        self.ui.currentOrderList.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
+        self.ui.currentOrderList.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.ui.currentOrderList.setSelectionMode(QTableWidget.NoSelection)
+        self.ui.accountsList.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
 
         self.state = main_pb2.TerminalStateResponse()
         #self.state.buttonList = ["goo", "bar", "Joe", "Luke", "Christian", "Flurgeist", "Dreckige Toilette"]    # TEMP DEV LINE TODO: REMOVE
@@ -67,6 +68,7 @@ class i6MainWindow(QMainWindow):
 
         self.updateButtons()
         self.updateOrdersList()
+        self.updateAccountsList()
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.timerCB)
@@ -75,7 +77,7 @@ class i6MainWindow(QMainWindow):
     def timerCB(self, *args):
         self.pollState()
 
-        #self.updateButtons()
+        self.updateButtons()
         self.updateOrdersList()
         self.updateAccountsList()
 
@@ -83,7 +85,7 @@ class i6MainWindow(QMainWindow):
         try:
             request = main_pb2.TerminalStateRequest()
             request.TerminalID = self.terminalId
-            self.state = self.backendStub.GetState(request)
+            #self.state = self.backendStub.GetState(request)
         except Exception as e:
             print(e)
 
@@ -103,6 +105,7 @@ class i6MainWindow(QMainWindow):
             account = self.state.Accounts[i]
             newButton = QPushButton(account.DisplayName)
             newButton.userid = account.ID   # Append backend userid to button so we know who to bill if button is pressed
+            newButton.setStyleSheet("color: rgb(238, 238, 236);")
             self.ui.buttonContainer.widget().layout().addWidget(newButton, math.floor(i/2), i % 2)     # Add buttons in zig-zag pattern
 
             self.buttons.append(newButton)
@@ -125,7 +128,7 @@ class i6MainWindow(QMainWindow):
             self.ui.currentOrderList.setItem(i, 0, nameWidget)
 
             priceWdiget = QTableWidgetItem("€%.2f" % (order.UnitPrice / 100))
-            priceWdiget.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            priceWdiget.setTextAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             self.ui.currentOrderList.setItem(i, 1, priceWdiget)
 
         # TODO: Totals Entry at bottom
@@ -144,8 +147,9 @@ class i6MainWindow(QMainWindow):
             self.ui.accountsList.setItem(i, 0, nameWidget)
 
             balanceWidget = QTableWidgetItem("€%.2f" % (account.Balance / 100))
-            balanceWidget.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            balanceWidget.setTextAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             self.ui.accountsList.setItem(i, 1, balanceWidget)
+
 
     def NameButtonPressed(self, *args):
         clickedButton = self.sender()    # WTF why isn't this passed as argument?
@@ -158,15 +162,29 @@ class i6MainWindow(QMainWindow):
         request.TerminalID = self.terminalId
         request.AccountID = clickedButton.userid
         try:
-            response = self.backendStub.Buy(request)
+            pass
+            #response = self.backendStub.Buy(request)
         except Exception as e:
             print(e)
 
         # TODO: Display returned error as modal dialog
+
+    def resizeEvent(self, a0: QResizeEvent):
+        self.scaleTables()
+
+    def scaleTables(self):
+        orderlistSize = self.ui.currentOrderList.maximumViewportSize()
+        self.ui.currentOrderList.setColumnWidth(0, 0.8 * orderlistSize.width())
+        self.ui.currentOrderList.setColumnWidth(1, 0.2 * orderlistSize.width())
+
+        accountlistSize = self.ui.accountsList.maximumViewportSize()
+        self.ui.accountsList.setColumnWidth(0, 0.8 * accountlistSize.width())
+        self.ui.accountsList.setColumnWidth(1, 0.2 * accountlistSize.width())
 
 
 app = QApplication(sys.argv)
 window = i6MainWindow("Foo")
 
 window.show()
+window.scaleTables()
 sys.exit(app.exec_())
