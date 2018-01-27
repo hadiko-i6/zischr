@@ -6,6 +6,7 @@ service TerminalBackend {
     rpc GetState(TerminalStateRequest) returns (TerminalStateResponse) {}
     rpc Buy(TerminalBuyRequest) returns (TerminalBuyResponse) {}
     rpc Scan(TerminalScanRequest) returns (TerminalScanResponse) {}
+    rpc Abort(AbortRequest) returns (AbortResponse) {}
 }
 
 message TerminalStateRequest {
@@ -13,24 +14,23 @@ message TerminalStateRequest {
 }
 
 message TerminalStateResponse {
-    message OrderEntry {
-        string name = 1;
-        int32 amount = 2;
-        int32 price = 3;
+    message Account {
+        string ID = 1;
+        string DisplayName = 2;
+        sint32 Balance = 3;
     }
-
-    message AccountEntry {
-        string name = 1;
-        int32 balance = 2;
+    message Order {
+        string DisplayName = 1;
+        sint32 UnitPrice = 2;
+        uint32 Amount = 3;
     }
-
-    repeated OrderEntry orderentries = 1;
-    repeated AccountEntry accountentries = 2;
-    repeated string buttonnames = 3;
+    repeated Account Accounts = 1;
+    repeated Order OrderList = 2;
 }
 
 message TerminalBuyRequest {
     string TerminalID = 1;
+    string AccountID = 2;
 }
 
 message TerminalBuyResponse {
@@ -44,4 +44,12 @@ message TerminalScanRequest {
 
 message TerminalScanResponse {
     string Error = 1;
+}
+
+message AbortRequest {
+	string TerminalID = 1;
+}
+
+message AbortResponse {
+	string Error = 1;
 }

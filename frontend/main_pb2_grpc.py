@@ -29,6 +29,11 @@ class TerminalBackendStub(object):
         request_serializer=main__pb2.TerminalScanRequest.SerializeToString,
         response_deserializer=main__pb2.TerminalScanResponse.FromString,
         )
+    self.Abort = channel.unary_unary(
+        '/i6getraenkeabrechnungssystem3000.rpc.TerminalBackend/Abort',
+        request_serializer=main__pb2.AbortRequest.SerializeToString,
+        response_deserializer=main__pb2.AbortResponse.FromString,
+        )
 
 
 class TerminalBackendServicer(object):
@@ -56,6 +61,13 @@ class TerminalBackendServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def Abort(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_TerminalBackendServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -73,6 +85,11 @@ def add_TerminalBackendServicer_to_server(servicer, server):
           servicer.Scan,
           request_deserializer=main__pb2.TerminalScanRequest.FromString,
           response_serializer=main__pb2.TerminalScanResponse.SerializeToString,
+      ),
+      'Abort': grpc.unary_unary_rpc_method_handler(
+          servicer.Abort,
+          request_deserializer=main__pb2.AbortRequest.FromString,
+          response_serializer=main__pb2.AbortResponse.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
