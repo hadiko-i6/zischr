@@ -1,0 +1,34 @@
+syntax = "proto3";
+package i6getraenkeabrechnungssystem3000.rpc;
+option go_package = "rpc";
+
+service TerminalBackend {
+    rpc GetState(TerminalStateRequest) returns (TerminalStateResponse) {}
+    rpc Buy(TerminalBuyRequest) returns (TerminalBuyResponse) {}
+    rpc Scan(TerminalScanRequest) returns (TerminalScanResponse) {}
+}
+
+message TerminalStateRequest {
+    string TerminalID = 1;
+}
+
+message TerminalStateResponse {
+    // TODO
+}
+
+message TerminalBuyRequest {
+    string TerminalID = 1;
+}
+
+message TerminalBuyResponse {
+    string Error = 1;
+}
+
+message TerminalScanRequest {
+    string TerminalID = 1;
+    string ProductID = 2;
+}
+
+message TerminalScanResponse {
+    string Error = 1;
+}
