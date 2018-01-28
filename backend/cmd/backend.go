@@ -140,7 +140,7 @@ func TransactionFromProduct(product db.Product, date time.Time) db.Transaction {
 		date,
 		product.DisplayName,
 		product.ID,
-		product.UnitPrice,
+		product.UnitPrice.Negate(),
 		product.NotInventoried,
 	}
 }
