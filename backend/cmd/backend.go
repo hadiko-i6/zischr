@@ -16,6 +16,7 @@ import (
 	"time"
 	"sync"
 	"github.com/satori/go.uuid"
+	"fmt"
 )
 
 type TerminalState struct {
@@ -205,6 +206,7 @@ func (b *Backend) Scan(ctx context.Context, req *rpc.TerminalScanRequest) (res *
 
 	prod, err := b.db.GetOrDeriveProduct(req.ProductID)
 	if err == db.DBDeriveProductError {
+		err = fmt.Errorf("scan of product ID '%s' failed: %s", req.ProductID, err)
 		t.LastScanError = err
 		return &rpc.TerminalScanResponse{err.Error()}, nil
 	} else if err != nil {
