@@ -28,6 +28,7 @@ message TerminalStateResponse {
     repeated Account Accounts = 1;
     repeated Order PendingOrders = 2;
     sint32 PendingOrdersTotal = 3;
+    bool CashInScanReceived = 4;
 }
 
 message TerminalBuyRequest {
