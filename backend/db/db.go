@@ -71,5 +71,6 @@ type Account struct {
 	// ID is the filename, should not be in JSON of FSDB
 	ID                 string `json:"-"`
 	DisplayName        string
+	SortKey	           string
 	Transactions       []Transaction
 }

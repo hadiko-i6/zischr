@@ -69,8 +69,12 @@ func (b *Backend) GetState(ctx context.Context, req *rpc.TerminalStateRequest) (
 			for _, t := range a.Transactions {
 				balance = balance.Add(t.Amount)
 			}
+			sortKey := a.SortKey
+			if sortKey == "" {
+				sortKey = a.ID
+			}
 			res.Accounts[i] = &rpc.TerminalStateResponse_Account{
-				a.ID, a.DisplayName, balance.Cents(),
+				a.ID, a.DisplayName, balance.Cents(), sortKey,
 			}
 		}
 	}

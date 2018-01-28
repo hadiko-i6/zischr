@@ -19,6 +19,7 @@ message TerminalStateResponse {
         string ID = 1;
         string DisplayName = 2;
         sint32 Balance = 3;
+        string SortKey = 4;
     }
     message Order {
         string DisplayName = 1;
