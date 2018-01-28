@@ -2,7 +2,7 @@
 
 import sys
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QTableWidgetItem, QHeaderView, QAbstractItemView, QTableWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QTableWidgetItem, QHeaderView, QTableWidget, QSpacerItem, QSizePolicy
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QResizeEvent
 
@@ -38,9 +38,11 @@ class i6MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        self.ui.currentOrderList.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
         self.ui.currentOrderList.setEditTriggers(QTableWidget.NoEditTriggers)
-        self.ui.currentOrderList.setSelectionMode(QTableWidget.NoSelection)
+        self.ui.accountsList.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.ui.currentOrderList.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
+        self.ui.currentOrderList.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
+        self.ui.accountsList.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
         self.ui.accountsList.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
 
         self.state = main_pb2.TerminalStateResponse()
@@ -58,7 +60,7 @@ class i6MainWindow(QMainWindow):
         a1.ID = "fuck"
         a1.DisplayName = "Dein Gesicht"
         a1.Balance = 1234
-        self.state.Accounts.extend([a1])
+        self.state.Accounts.extend([a1]*18)
 
         self.channel = grpc.insecure_channel('localhost:50051')
         self.backendStub = main_pb2_grpc.TerminalBackendStub(self.channel)
@@ -106,11 +108,16 @@ class i6MainWindow(QMainWindow):
             newButton = QPushButton(account.DisplayName)
             newButton.userid = account.ID   # Append backend userid to button so we know who to bill if button is pressed
             newButton.setStyleSheet("color: rgb(238, 238, 236);")
+            newButton.setMinimumHeight(60)
             self.ui.buttonContainer.widget().layout().addWidget(newButton, math.floor(i/2), i % 2)     # Add buttons in zig-zag pattern
 
             self.buttons.append(newButton)
 
             newButton.clicked.connect(self.NameButtonPressed)
+
+        newSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.ui.buttonContainer.widget().layout().addItem(newSpacer, math.floor(i / 2) + 1, 0)
+        self.buttons.append(newSpacer)
 
         self.lastAccounts = list(self.state.Accounts)
 
@@ -136,19 +143,24 @@ class i6MainWindow(QMainWindow):
     def updateAccountsList(self):
         self.ui.accountsList.clear()
 
-        self.ui.accountsList.setColumnCount(2)
-        self.ui.accountsList.setRowCount(len(self.state.Accounts))
+        self.ui.accountsList.setColumnCount(4)
+        self.ui.accountsList.setRowCount(math.ceil(len(self.state.Accounts)/2))
 
-        self.ui.accountsList.setHorizontalHeaderLabels(["Name", "Balance"])
+        self.ui.accountsList.setHorizontalHeaderLabels(["Name", "Balance"]*2)
 
         for i in range(len(self.state.Accounts)):
+            if i % 2 == 0:
+                columnoffset = 0
+            else:
+                columnoffset = 2
+
             account = self.state.Accounts[i]
             nameWidget = QTableWidgetItem(account.DisplayName)
-            self.ui.accountsList.setItem(i, 0, nameWidget)
+            self.ui.accountsList.setItem(math.floor(i / 2), 0 + columnoffset, nameWidget)
 
             balanceWidget = QTableWidgetItem("€%.2f" % (account.Balance / 100))
             balanceWidget.setTextAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-            self.ui.accountsList.setItem(i, 1, balanceWidget)
+            self.ui.accountsList.setItem(math.floor(i / 2), 1 + columnoffset, balanceWidget)
 
 
     def NameButtonPressed(self, *args):
@@ -178,8 +190,10 @@ class i6MainWindow(QMainWindow):
         self.ui.currentOrderList.setColumnWidth(1, 0.2 * orderlistSize.width())
 
         accountlistSize = self.ui.accountsList.maximumViewportSize()
-        self.ui.accountsList.setColumnWidth(0, 0.8 * accountlistSize.width())
-        self.ui.accountsList.setColumnWidth(1, 0.2 * accountlistSize.width())
+        self.ui.accountsList.setColumnWidth(0, 0.35 * accountlistSize.width())
+        self.ui.accountsList.setColumnWidth(1, 0.15 * accountlistSize.width())
+        self.ui.accountsList.setColumnWidth(2, 0.35 * accountlistSize.width())
+        self.ui.accountsList.setColumnWidth(3, 0.15 * accountlistSize.width())
 
 
 app = QApplication(sys.argv)

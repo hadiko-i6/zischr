@@ -15,7 +15,9 @@
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: rgb(46, 52, 54);
-font-size: 20px;</string>
+color: rgb(238, 238, 236);
+font-size: 20px;
+alternate-background-color: rgb(56, 63, 67);</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -37,8 +39,23 @@ font-size: 20px;</string>
        <item>
         <widget class="QTableWidget" name="currentOrderList">
          <property name="styleSheet">
-          <string notr="true">color: rgb(238, 238, 236);</string>
+          <string notr="true"/>
          </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOff</enum>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::DoubleClicked</set>
+         </property>
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::NoSelection</enum>
+         </property>
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
          <row>
           <property name="text">
            <string>New Row</string>
@@ -57,19 +74,49 @@ font-size: 20px;</string>
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="pushButton">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(100, 19, 19);
+</string>
+         </property>
+         <property name="text">
+          <string>Cancel Order</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QTableWidget" name="accountsList">
          <property name="styleSheet">
-          <string notr="true">color: rgb(238, 238, 236);
-font-size: 12px;</string>
+          <string notr="true">font-size: 12px;</string>
+         </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOff</enum>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::DoubleClicked</set>
+         </property>
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::NoSelection</enum>
          </property>
          <property name="gridStyle">
           <enum>Qt::SolidLine</enum>
          </property>
+         <property name="rowCount">
+          <number>3</number>
+         </property>
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
          <row>
           <property name="text">
            <string>New Row</string>
           </property>
          </row>
+         <row/>
+         <row/>
          <column>
           <property name="text">
            <string>Name</string>
