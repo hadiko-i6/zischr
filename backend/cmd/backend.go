@@ -67,7 +67,7 @@ func (b *Backend) GetState(ctx context.Context, req *rpc.TerminalStateRequest) (
 		for i, a := range accounts {
 			var balance db.Money
 			for _, t := range a.Transactions {
-				balance.Add(t.Amount)
+				balance = balance.Add(t.Amount)
 			}
 			res.Accounts[i] = &rpc.TerminalStateResponse_Account{
 				a.ID, a.DisplayName, balance.Cents(),
