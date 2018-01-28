@@ -74,7 +74,7 @@ alternate-background-color: rgb(56, 63, 67);</string>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton">
+        <widget class="QPushButton" name="cancelButton">
          <property name="styleSheet">
           <string notr="true">background-color: rgb(100, 19, 19);
 </string>

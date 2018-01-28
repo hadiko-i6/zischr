@@ -13,6 +13,13 @@ import grpc
 import main_pb2
 import main_pb2_grpc
 
+
+def customexcepthook(type, value, traceback):
+    print(traceback.print_exc(), file=sys.stderr)
+    sys.exit(1)
+#sys.excepthook = customexcepthook
+
+
 class ProgramState():
     class orderEntry:
         def __init__(self):
@@ -46,27 +53,13 @@ class i6MainWindow(QMainWindow):
         self.ui.accountsList.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
 
         self.state = main_pb2.TerminalStateResponse()
-        #self.state.buttonList = ["goo", "bar", "Joe", "Luke", "Christian", "Flurgeist", "Dreckige Toilette"]    # TEMP DEV LINE TODO: REMOVE
-        s1 = main_pb2.TerminalStateResponse.Order()
-        s1.DisplayName = "Holi aber echt langer name lolololo  asdasdfasdfgkj"
-        s1.UnitPrice = int(85)
-        self.state.OrderList.extend([
-            s1,
-            s1,
-            s1
-        ])
 
-        a1 = main_pb2.TerminalStateResponse.Account()
-        a1.ID = "fuck"
-        a1.DisplayName = "Dein Gesicht"
-        a1.Balance = 1234
-        self.state.Accounts.extend([a1]*18)
-
-        self.channel = grpc.insecure_channel('localhost:50051')
+        self.channel = grpc.insecure_channel('localhost:8080')  # TODO: set as arg
         self.backendStub = main_pb2_grpc.TerminalBackendStub(self.channel)
 
         self.buttons = []
         self.lastAccounts = []    # Stores the last list of button names to be updated
+        self.spacer = None  # Spacer for formatting buttons
 
         self.updateButtons()
         self.updateOrdersList()
@@ -74,7 +67,9 @@ class i6MainWindow(QMainWindow):
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.timerCB)
-        self.timer.start(1000)
+        self.timer.start(100)
+
+        self.ui.cancelButton.clicked.connect(self.CancelButtonPressed)
 
     def timerCB(self, *args):
         self.pollState()
@@ -87,9 +82,10 @@ class i6MainWindow(QMainWindow):
         try:
             request = main_pb2.TerminalStateRequest()
             request.TerminalID = self.terminalId
-            #self.state = self.backendStub.GetState(request)
+            self.state = self.backendStub.GetState(request)
         except Exception as e:
             print(e)
+            raise
 
 
     def updateButtons(self):
@@ -100,6 +96,8 @@ class i6MainWindow(QMainWindow):
         for button in self.buttons:
             self.ui.buttonContainer.widget().layout().removeWidget(button)
             button.deleteLater()
+        if self.spacer is not None:
+            self.ui.buttonContainer.widget().layout().removeItem(self.spacer)
 
         self.buttons = []
 
@@ -115,9 +113,8 @@ class i6MainWindow(QMainWindow):
 
             newButton.clicked.connect(self.NameButtonPressed)
 
-        newSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        self.ui.buttonContainer.widget().layout().addItem(newSpacer, math.floor(i / 2) + 1, 0)
-        self.buttons.append(newSpacer)
+        self.spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.ui.buttonContainer.widget().layout().addItem(self.spacer, math.floor(i / 2) + 1, 0)
 
         self.lastAccounts = list(self.state.Accounts)
 
@@ -125,16 +122,16 @@ class i6MainWindow(QMainWindow):
         self.ui.currentOrderList.clear()
 
         self.ui.currentOrderList.setColumnCount(2)
-        self.ui.currentOrderList.setRowCount(len(self.state.OrderList))
+        self.ui.currentOrderList.setRowCount(len(self.state.PendingOrders))
 
         self.ui.currentOrderList.setHorizontalHeaderLabels(["Name", "Price"])
 
-        for i in range(len(self.state.OrderList)):
-            order = self.state.OrderList[i]
+        for i in range(len(self.state.PendingOrders)):
+            order = self.state.PendingOrders[i]
             nameWidget = QTableWidgetItem(order.DisplayName)
             self.ui.currentOrderList.setItem(i, 0, nameWidget)
 
-            priceWdiget = QTableWidgetItem("€%.2f" % (order.UnitPrice / 100))
+            priceWdiget = QTableWidgetItem("€%.2f" % (order.Price / 100))
             priceWdiget.setTextAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             self.ui.currentOrderList.setItem(i, 1, priceWdiget)
 
@@ -175,11 +172,25 @@ class i6MainWindow(QMainWindow):
         request.AccountID = clickedButton.userid
         try:
             pass
-            #response = self.backendStub.Buy(request)
+            response = self.backendStub.Buy(request)
         except Exception as e:
             print(e)
+            raise
 
         # TODO: Display returned error as modal dialog
+
+    def CancelButtonPressed(self):
+        request = main_pb2.AbortRequest()
+        request.TerminalID = self.terminalId
+
+        try:
+            pass
+            response = self.backendStub.Abort(request)
+            print(response)
+        except Exception as e:
+            print(e)
+            raise
+
 
     def resizeEvent(self, a0: QResizeEvent):
         self.scaleTables()
