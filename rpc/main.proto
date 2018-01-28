@@ -26,10 +26,11 @@ message TerminalStateResponse {
         sint32 Price = 2;
         bool NeedsReview = 3;
     }
-    repeated Account Accounts = 1;
-    repeated Order PendingOrders = 2;
-    sint32 PendingOrdersTotal = 3;
-    bool CashInScanReceived = 4;
+    string UUID = 1;
+    repeated Account Accounts = 2;
+    repeated Order PendingOrders = 3;
+    sint32 PendingOrdersTotal = 4;
+    bool CashInScanReceived = 5;
 }
 
 message TerminalBuyRequest {

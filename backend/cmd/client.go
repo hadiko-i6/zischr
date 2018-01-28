@@ -70,7 +70,7 @@ func doClient(cmd *cobra.Command, args []string) {
 		pretty.Println(res)
 
 	case "buy":
-		res, err := client.Buy(ctx, &rpc.TerminalBuyRequest{tid, args[1]})
+		res, err := client.Buy(ctx, &rpc.TerminalBuyRequest{tid, args[1], args[2]})
 		if err != nil {
 			log.Fatal(err)
 		}

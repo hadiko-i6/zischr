@@ -184,6 +184,7 @@ class i6MainWindow(QMainWindow):
 
         self.buttons = []
 
+        i = 0
         for i in range(len(self.sortedAccounts)):
             account = self.sortedAccounts[i]
             newButton = QPushButton(account.DisplayName)

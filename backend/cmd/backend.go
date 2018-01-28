@@ -25,7 +25,11 @@ type TerminalState struct {
 }
 
 func (ts *TerminalState) UpdateUUID() {
-	ts.UUID = uuid.NewV4()
+	var err error
+	ts.UUID, err = uuid.NewV4()
+	if err != nil {
+		panic(err)
+	}
 }
 
 type Backend struct {
@@ -51,7 +55,6 @@ func (b *Backend) lazyTerminalState(terminalID string) (*TerminalState) {
 		b.terminals[terminalID] = po
 		return po
 	}
-	po.UpdateUUID()
 	return po
 }
 
@@ -91,12 +94,13 @@ func (b *Backend) GetState(ctx context.Context, req *rpc.TerminalStateRequest) (
 	defer b.terminalsLock.RUnlock()
 	ts := b.lazyTerminalState(req.TerminalID)
 
+	res.UUID = ts.UUID.String()
 	res.CashInScanReceived = ts.CashInScanReceived
 
 	var pendingTotal db.Money
 	res.PendingOrders = make([]*rpc.TerminalStateResponse_Order, len(ts.PendingTransactions))
 	for i, p := range ts.PendingTransactions {
-		pendingTotal.Add(p.Amount)
+		pendingTotal = pendingTotal.Add(p.Amount.Negate())
 		res.PendingOrders[i] = &rpc.TerminalStateResponse_Order{
 			p.Description,
 			p.Amount.Negate().Cents(), // price is the negative tx amount
@@ -122,16 +126,22 @@ func (b *Backend) Abort(ctx context.Context, req *rpc.AbortRequest) (*rpc.AbortR
 func (b *Backend) Buy(ctx context.Context, req *rpc.TerminalBuyRequest) (*rpc.TerminalBuyResponse, error) {
 
 	if req.TerminalID == "" {
-		return nil, errors.New("TerminalID missing")
+		return &rpc.TerminalBuyResponse{"TerminalID missing"}, nil
 	}
 	if req.AccountID == "" {
-		return nil, errors.New("TerminalID missing")
+		return &rpc.TerminalBuyResponse{"TerminalID missing"}, nil
 	}
 
 	b.terminalsLock.Lock()
 	defer b.terminalsLock.Unlock()
 
 	ts := b.lazyTerminalState(req.TerminalID)
+
+	if ts.UUID.String() != req.UUID {
+		log.Println("UUID mismatch: server state '%s' != request '%s'", ts.UUID, req.UUID)
+		return &rpc.TerminalBuyResponse{"UUID mismatch"}, nil
+	}
+
 	inputErr, err := b.db.CommitTransactions(req.AccountID, ts.PendingTransactions)
 	if err != nil {
 		if inputErr {
@@ -184,6 +194,7 @@ func (b *Backend) Scan(ctx context.Context, req *rpc.TerminalScanRequest) (res *
 
 	if req.ProductID == PRODUCT_ID_MAGIC_CASHIN {
 		t.CashInScanReceived = true
+		t.UpdateUUID()
 		return &rpc.TerminalScanResponse{}, nil
 	}
 
@@ -194,6 +205,7 @@ func (b *Backend) Scan(ctx context.Context, req *rpc.TerminalScanRequest) (res *
 		log.Panic(err.Error())
 	}
 	t.PendingTransactions = append(t.PendingTransactions, TransactionFromProduct(prod, time.Now()))
+	t.UpdateUUID()
 
 	return &rpc.TerminalScanResponse{}, nil
 
@@ -209,7 +221,9 @@ func (b *Backend) AddDepositOrder(ctx context.Context, req *rpc.TerminalAddDepos
 	tx := CashInTransaction(db.NewMoney(req.CashInAmount), time.Now())
 	t.PendingTransactions = append(t.PendingTransactions, tx)
 
+
 	t.CashInScanReceived = false
 
+	t.UpdateUUID()
 	return &rpc.TerminalAddDepositOrderResponse{}, nil
 }
