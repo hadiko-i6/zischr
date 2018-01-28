@@ -22,6 +22,7 @@ type TerminalState struct {
 	UUID  uuid.UUID
 	PendingTransactions []db.Transaction
 	CashInScanReceived bool
+	LastScanError error
 }
 
 func (ts *TerminalState) UpdateUUID() {
@@ -96,6 +97,7 @@ func (b *Backend) GetState(ctx context.Context, req *rpc.TerminalStateRequest) (
 
 	res.UUID = ts.UUID.String()
 	res.CashInScanReceived = ts.CashInScanReceived
+	res.LastScanError = ts.LastScanError.Error()
 
 	var pendingTotal db.Money
 	res.PendingOrders = make([]*rpc.TerminalStateResponse_Order, len(ts.PendingTransactions))
@@ -191,6 +193,7 @@ func (b *Backend) Scan(ctx context.Context, req *rpc.TerminalScanRequest) (res *
 	defer b.terminalsLock.Unlock()
 
 	t := b.lazyTerminalState(req.TerminalID)
+	t.LastScanError = nil
 
 	if req.ProductID == PRODUCT_ID_MAGIC_CASHIN {
 		t.CashInScanReceived = true
@@ -200,6 +203,7 @@ func (b *Backend) Scan(ctx context.Context, req *rpc.TerminalScanRequest) (res *
 
 	prod, err := b.db.GetOrDeriveProduct(req.ProductID)
 	if err == db.DBDeriveProductError {
+		t.LastScanError = err
 		return &rpc.TerminalScanResponse{err.Error()}, nil
 	} else if err != nil {
 		log.Panic(err.Error())
