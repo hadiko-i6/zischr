@@ -126,13 +126,12 @@ class i6MainWindow(QMainWindow):
 
     def checkCashin(self):
         if not self.cashinOpen:
-            for order in list(self.state.PendingOrders):
-                if(order.DisplayName == "EAN:1337"):    # MAGIC TOKEN #TODO: Change to actual magic token
-                    self.cashinWidget = i6CashInWidget()
-                    self.cashinWidget.doneCB = self.cashinDone
-                    self.ui.mainWidgetStack.insertWidget(1, self.cashinWidget)
-                    self.ui.mainWidgetStack.setCurrentWidget(self.cashinWidget)
-                    self.cashinOpen = True
+            if self.state.CashInScanReceived:    # MAGIC TOKEN #TODO: Change to actual magic token
+                self.cashinWidget = i6CashInWidget()
+                self.cashinWidget.doneCB = self.cashinDone
+                self.ui.mainWidgetStack.insertWidget(1, self.cashinWidget)
+                self.ui.mainWidgetStack.setCurrentWidget(self.cashinWidget)
+                self.cashinOpen = True
 
     def cashinDone(self, amount):
         self.cashinOpen = False
@@ -140,7 +139,15 @@ class i6MainWindow(QMainWindow):
         self.ui.mainWidgetStack.removeWidget(self.cashinWidget)
         del self.cashinWidget
 
-        # TODO: Make RPC call for amount if amount is not None
+        request = main_pb2.TerminalAddDepositOrderRequest()
+        request.TerminalID = self.terminalId
+        request.CashInAmount = amount
+
+        try:
+            response = self.backendStub.AddDepositOrder(request)
+        except Exception as e:
+            print(e)
+            raise
 
     def updateButtons(self):
         if self.lastAccounts == list(self.state.Accounts):    # Current button state is equal to previous, no need to update
