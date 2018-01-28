@@ -100,9 +100,7 @@ class i6MainWindow(QMainWindow):
         self.lastAccounts = []    # Stores the last list of button names to be updated
         self.spacer = None  # Spacer for formatting buttons
 
-        self.updateButtons()
-        self.updateOrdersList()
-        self.updateAccountsList()
+        self.lastOrders = None
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.timerCB)
@@ -116,6 +114,10 @@ class i6MainWindow(QMainWindow):
 
         self.confirmOpen = False
         self.confirmWidget = None
+
+        self.updateButtons()
+        self.updateOrdersList()
+        self.updateAccountsList()
 
     def timerCB(self, *args):
         self.pollState()
@@ -140,7 +142,7 @@ class i6MainWindow(QMainWindow):
 
     def sortAccounts(self):
         accounts = list(self.state.Accounts)
-        self.sortedAccounts = sorted(accounts, key=lambda x: x.ID)
+        self.sortedAccounts = sorted(accounts, key=lambda x: x.SortKey)
 
     def checkCashin(self):
         if not self.cashinOpen:
@@ -201,6 +203,11 @@ class i6MainWindow(QMainWindow):
         self.lastAccounts = list(self.sortedAccounts)
 
     def updateOrdersList(self):
+        if self.lastOrders == list(self.state.PendingOrders):    # Current button state is equal to previous, no need to update
+            return
+
+        self.NameButtonPressedConfirmationCB(False)     # In case somebody scanned in drink during confirm dialog, cancel!
+
         self.ui.currentOrderList.clear()
 
         self.ui.currentOrderList.setColumnCount(2)
@@ -216,6 +223,8 @@ class i6MainWindow(QMainWindow):
             priceWdiget = QTableWidgetItem("€%.2f" % (order.Price / 100))
             priceWdiget.setTextAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             self.ui.currentOrderList.setItem(i, 1, priceWdiget)
+
+        self.lastOrders = list(self.state.PendingOrders)
 
         # TODO: Totals Entry at bottom
 
@@ -267,9 +276,10 @@ class i6MainWindow(QMainWindow):
                 print(e)
                 raise
 
-        self.ui.mainWidgetStack.setCurrentWidget(self.mainWidget)
-        self.ui.mainWidgetStack.removeWidget(self.confirmWidget)
-        self.confirmOpen = False
+        if self.confirmOpen:
+            self.ui.mainWidgetStack.setCurrentWidget(self.mainWidget)
+            self.ui.mainWidgetStack.removeWidget(self.confirmWidget)
+            self.confirmOpen = False
 
     def CancelButtonPressed(self):
         request = main_pb2.AbortRequest()
