@@ -13,7 +13,8 @@ type DB interface {
 
 type Product struct {
 	DisplayName    string
-	ID             string
+	// In JSON, the ID is the dictionary key => avoid redundancy
+	ID             string `json:"-"`
 	UnitPrice      Money
 	NotInventoried bool
 }

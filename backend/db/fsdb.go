@@ -299,6 +299,13 @@ func NewFSDB(dbDir string) (*FSDB, error) {
 		log.Printf("cannot unmarshal %s: %s", productsFileInfo.Name(), err)
 		return nil, err
 	}
+	for pid, p := range db.productsByID {
+		if p.ID != "" {
+			log.Printf("Product.ID specified redundantly in object member 'ID' of product '%s'", pid)
+			return nil, DBInconsistentError
+		}
+		p.ID = pid
+	}
 
 	// load accounts
 	db.accountsByID = make(map[string]*Account)
