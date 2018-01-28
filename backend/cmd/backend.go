@@ -138,7 +138,7 @@ func (b *Backend) Buy(ctx context.Context, req *rpc.TerminalBuyRequest) (*rpc.Te
 	ts := b.lazyTerminalState(req.TerminalID)
 
 	if ts.UUID.String() != req.UUID {
-		log.Println("UUID mismatch: server state '%s' != request '%s'", ts.UUID, req.UUID)
+		log.Printf("UUID mismatch: server state '%s' != request '%s'", ts.UUID, req.UUID)
 		return &rpc.TerminalBuyResponse{"UUID mismatch"}, nil
 	}
 
