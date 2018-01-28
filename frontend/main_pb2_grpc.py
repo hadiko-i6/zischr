@@ -24,6 +24,11 @@ class TerminalBackendStub(object):
         request_serializer=main__pb2.TerminalBuyRequest.SerializeToString,
         response_deserializer=main__pb2.TerminalBuyResponse.FromString,
         )
+    self.AddDepositOrder = channel.unary_unary(
+        '/i6getraenkeabrechnungssystem3000.rpc.TerminalBackend/AddDepositOrder',
+        request_serializer=main__pb2.TerminalAddDepositOrderRequest.SerializeToString,
+        response_deserializer=main__pb2.TerminalAddDepositOrderResponse.FromString,
+        )
     self.Scan = channel.unary_unary(
         '/i6getraenkeabrechnungssystem3000.rpc.TerminalBackend/Scan',
         request_serializer=main__pb2.TerminalScanRequest.SerializeToString,
@@ -48,6 +53,13 @@ class TerminalBackendServicer(object):
     raise NotImplementedError('Method not implemented!')
 
   def Buy(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def AddDepositOrder(self, request, context):
     # missing associated documentation comment in .proto file
     pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -80,6 +92,11 @@ def add_TerminalBackendServicer_to_server(servicer, server):
           servicer.Buy,
           request_deserializer=main__pb2.TerminalBuyRequest.FromString,
           response_serializer=main__pb2.TerminalBuyResponse.SerializeToString,
+      ),
+      'AddDepositOrder': grpc.unary_unary_rpc_method_handler(
+          servicer.AddDepositOrder,
+          request_deserializer=main__pb2.TerminalAddDepositOrderRequest.FromString,
+          response_serializer=main__pb2.TerminalAddDepositOrderResponse.SerializeToString,
       ),
       'Scan': grpc.unary_unary_rpc_method_handler(
           servicer.Scan,

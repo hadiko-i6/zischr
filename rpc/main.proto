@@ -5,6 +5,7 @@ option go_package = "rpc";
 service TerminalBackend {
     rpc GetState(TerminalStateRequest) returns (TerminalStateResponse) {}
     rpc Buy(TerminalBuyRequest) returns (TerminalBuyResponse) {}
+    rpc AddDepositOrder(TerminalAddDepositOrderRequest) returns (TerminalAddDepositOrderResponse) {}
     rpc Scan(TerminalScanRequest) returns (TerminalScanResponse) {}
     rpc Abort(AbortRequest) returns (AbortResponse) {}
 }
@@ -37,6 +38,15 @@ message TerminalBuyRequest {
 
 message TerminalBuyResponse {
     string Error = 1;
+}
+
+message TerminalAddDepositOrderRequest {
+	string TerminalID = 1;
+	sint32 CashInAmount = 2;
+}
+
+message TerminalAddDepositOrderResponse {
+	string Error = 1;
 }
 
 message TerminalScanRequest {
