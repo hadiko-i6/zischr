@@ -15,11 +15,17 @@ import (
 	"errors"
 	"time"
 	"sync"
+	"github.com/satori/go.uuid"
 )
 
 type TerminalState struct {
+	UUID  uuid.UUID
 	PendingTransactions []db.Transaction
 	CashInScanReceived bool
+}
+
+func (ts *TerminalState) UpdateUUID() {
+	ts.UUID = uuid.NewV4()
 }
 
 type Backend struct {
@@ -41,9 +47,11 @@ func (b *Backend) lazyTerminalState(terminalID string) (*TerminalState) {
 		po = &TerminalState{
 			PendingTransactions: make([]db.Transaction, 0, 10),
 		}
+		po.UpdateUUID()
 		b.terminals[terminalID] = po
 		return po
 	}
+	po.UpdateUUID()
 	return po
 }
 
