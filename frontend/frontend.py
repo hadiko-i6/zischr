@@ -167,6 +167,7 @@ class i6MainWindow(QMainWindow):
 
             try:
                 response = self.backendStub.AddDepositOrder(request)
+                self.setStatusbarError(response.Error)
             except Exception as e:
                 print(e)
                 raise
@@ -278,10 +279,11 @@ class i6MainWindow(QMainWindow):
             try:
                 pass
                 response = self.backendStub.Buy(request)
+                self.setStatusbarError(response.Error)
+
             except Exception as e:
                 print(e)
                 raise
-
         if self.confirmOpen:
             self.ui.mainWidgetStack.setCurrentWidget(self.mainWidget)
             self.ui.mainWidgetStack.removeWidget(self.confirmWidget)
@@ -294,11 +296,19 @@ class i6MainWindow(QMainWindow):
         try:
             pass
             response = self.backendStub.Abort(request)
-            print(response)
+            self.setStatusbarError(response.Error)
         except Exception as e:
             print(e)
             raise
 
+    def setStatusbarError(self, message, clearIfEmpty=True):
+        if message:
+            self.ui.statusbar.showMessage(message)
+            print(message)
+            self.ui.statusbar.setStyleSheet("background-color: rgb(100, 19, 19);")
+        elif clearIfEmpty:
+            self.ui.statusbar.clearMessage()
+            self.ui.statusbar.setStyleSheet("")
 
     def resizeEvent(self, a0: QResizeEvent):
         self.scaleTables()
