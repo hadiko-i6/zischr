@@ -17,34 +17,37 @@ import (
 	"sync"
 )
 
+type TerminalState struct {
+	PendingTransactions []db.Transaction
+}
+
 type Backend struct {
-	db                      db.DB
-	pendingLock             sync.RWMutex
-	pendingOrdersByTerminal map[string]*db.PendingOrder
+	db            db.DB
+	terminalsLock sync.RWMutex
+	terminals     map[string]*TerminalState
 }
 
 func NewBackend(useDB db.DB) *Backend {
 	return &Backend{
-		db: useDB,
-		pendingOrdersByTerminal: make(map[string]*db.PendingOrder),
+		db:        useDB,
+		terminals: make(map[string]*TerminalState),
 	}
 }
 
-func (b *Backend) lazyPendingOrders(terminalID string) (*db.PendingOrder) {
-	po, ok := b.pendingOrdersByTerminal[terminalID]
+func (b *Backend) lazyTerminalState(terminalID string) (*TerminalState) {
+	po, ok := b.terminals[terminalID]
 	if !ok || po == nil {
-		po = &db.PendingOrder{
-			LastModified: time.Now(),
-			Products: make([]db.Product, 0, 10),
+		po = &TerminalState{
+			PendingTransactions: make([]db.Transaction, 0, 10),
 		}
-		b.pendingOrdersByTerminal[terminalID] = po
+		b.terminals[terminalID] = po
 		return po
 	}
 	return po
 }
 
-func (b *Backend) resetPendingOrders(terminalID string) {
-	delete(b.pendingOrdersByTerminal, terminalID)
+func (b *Backend) resetTerminalState(terminalID string) {
+	delete(b.terminals, terminalID)
 }
 
 func (b *Backend) GetState(ctx context.Context, req *rpc.TerminalStateRequest) (*rpc.TerminalStateResponse, error) {
@@ -62,7 +65,7 @@ func (b *Backend) GetState(ctx context.Context, req *rpc.TerminalStateRequest) (
 		res.Accounts = make([]*rpc.TerminalStateResponse_Account, len(accounts))
 		for i, a := range accounts {
 			var balance db.Money
-			for _, t := range a.FinishedTransactions {
+			for _, t := range a.Transactions {
 				balance.Add(t.Amount)
 			}
 			res.Accounts[i] = &rpc.TerminalStateResponse_Account{
@@ -71,16 +74,15 @@ func (b *Backend) GetState(ctx context.Context, req *rpc.TerminalStateRequest) (
 		}
 	}
 
-	b.pendingLock.RLock()
-	defer b.pendingLock.RUnlock()
-	po := b.lazyPendingOrders(req.TerminalID)
+	b.terminalsLock.RLock()
+	defer b.terminalsLock.RUnlock()
+	ts := b.lazyTerminalState(req.TerminalID)
 	var pendingTotal db.Money
-	res.PendingOrders = make([]*rpc.TerminalStateResponse_Order, len(po.Products))
-	for i, p := range po.Products {
-		pendingTotal.Add(p.UnitPrice)
-		res.PendingOrdersContainsNotInventoried = res.PendingOrdersContainsNotInventoried || p.NotInventoried
+	res.PendingOrders = make([]*rpc.TerminalStateResponse_Order, len(ts.PendingTransactions))
+	for i, p := range ts.PendingTransactions {
+		pendingTotal.Add(p.Amount)
 		res.PendingOrders[i] = &rpc.TerminalStateResponse_Order{
-			p.DisplayName, p.UnitPrice.Cents(), p.NotInventoried,
+			p.Description, p.Amount.Cents(), p.NeedsReview,
 		}
 	}
 	res.PendingOrdersTotal = pendingTotal.Cents()
@@ -93,9 +95,9 @@ func (b *Backend) Abort(ctx context.Context, req *rpc.AbortRequest) (*rpc.AbortR
 	if req.TerminalID == "" {
 		return nil, errors.New("TerminalID missing")
 	}
-	b.pendingLock.Lock()
-	defer b.pendingLock.Unlock()
-	b.resetPendingOrders(req.TerminalID)
+	b.terminalsLock.Lock()
+	defer b.terminalsLock.Unlock()
+	b.resetTerminalState(req.TerminalID)
 	return &rpc.AbortResponse{}, nil
 }
 
@@ -108,11 +110,11 @@ func (b *Backend) Buy(ctx context.Context, req *rpc.TerminalBuyRequest) (*rpc.Te
 		return nil, errors.New("TerminalID missing")
 	}
 
-	b.pendingLock.Lock()
-	defer b.pendingLock.Unlock()
+	b.terminalsLock.Lock()
+	defer b.terminalsLock.Unlock()
 
-	po := b.lazyPendingOrders(req.TerminalID)
-	inputErr, err := b.db.CommitPendingOrder(req.AccountID, po)
+	ts := b.lazyTerminalState(req.TerminalID)
+	inputErr, err := b.db.CommitTransactions(req.AccountID, ts.PendingTransactions)
 	if err != nil {
 		if inputErr {
 			log.Printf("input error on committing pending order: %s", err)
@@ -122,9 +124,19 @@ func (b *Backend) Buy(ctx context.Context, req *rpc.TerminalBuyRequest) (*rpc.Te
 		}
 	} else {
 		log.Println("committed pending orders, resetting pending orders list")
-		b.pendingOrdersByTerminal[req.TerminalID] =  nil
+		b.terminals[req.TerminalID] =  nil
 	}
 	return &rpc.TerminalBuyResponse{}, nil
+}
+
+func TransactionFromProduct(product db.Product, date time.Time) db.Transaction {
+	return db.Transaction{
+		date,
+		product.DisplayName,
+		product.ID,
+		product.UnitPrice,
+		product.NotInventoried,
+	}
 }
 
 func (b *Backend) Scan(ctx context.Context, req *rpc.TerminalScanRequest) (res *rpc.TerminalScanResponse, err error) {
@@ -138,12 +150,11 @@ func (b *Backend) Scan(ctx context.Context, req *rpc.TerminalScanRequest) (res *
 		log.Panicf("could not get product: %s", err)
 	}
 
-	b.pendingLock.Lock()
-	defer b.pendingLock.Unlock()
+	b.terminalsLock.Lock()
+	defer b.terminalsLock.Unlock()
 
-	po := b.lazyPendingOrders(req.TerminalID)
-	po.LastModified = time.Now()
-	po.Products = append(po.Products, prod)
+	t := b.lazyTerminalState(req.TerminalID)
+	t.PendingTransactions = append(t.PendingTransactions, TransactionFromProduct(prod, time.Now()))
 
 	return &rpc.TerminalScanResponse{}, nil
 

@@ -351,12 +351,12 @@ func (db *FSDB) GetOrDeriveProduct(productID string) (prod Product, err error) {
 	return *product, nil
 }
 
-func (db *FSDB) CommitPendingOrder(accountID string, po *PendingOrder) (inputError bool, err error) {
+func (db *FSDB) CommitTransactions(accountID string, transactions []Transaction) (inputError bool, err error) {
 	db.lock.Lock()
 	defer db.lock.Unlock()
 
-	if po == nil {
-		log.Panic("pending order is nil")
+	if transactions == nil {
+		log.Panic("transactions is nil")
 	}
 
 	account, ok := db.accountsByID[accountID]
@@ -365,31 +365,22 @@ func (db *FSDB) CommitPendingOrder(accountID string, po *PendingOrder) (inputErr
 		return true, errors.New("account does not exist")
 	}
 
-	newFinishedTx := make([]Transaction, 0, len(po.Products))
-	newReviewTx := make([]Transaction, 0, len(po.Products))
+	// Copy transactions to provide rollback on error
+	newTxes := make([]Transaction, 0, len(transactions))
 	t := time.Now()
-	for _, p := range po.Products {
-		tx := TransactionFromProduct(p, t)
-		if p.NotInventoried {
-			newReviewTx = append(newReviewTx, tx)
-		} else {
-			newFinishedTx = append(newFinishedTx, tx)
-		}
+	for _, p := range transactions {
+		var tx = p
+		tx.Date = t
 	}
 
 	// Atomically update transactions on disk
-	// TODO check if this really works
-	prevFinishedTx := account.FinishedTransactions[:]
-	prevReviewTx := account.ReviewTransactions[:]
-
-	account.FinishedTransactions = append(account.FinishedTransactions, newFinishedTx...)
-	account.ReviewTransactions = append(account.ReviewTransactions, newReviewTx...)
+	prevFinishedTx := account.Transactions[:]
+	account.Transactions = append(account.Transactions, newTxes...)
 	err = db.persistAccount(account)
 	if  err != nil {
 		log.Printf("error persisting account '%s': %s", account.ID, err)
 		log.Printf("rolling back to pre-transaction state")
-		account.FinishedTransactions = prevFinishedTx
-		account.ReviewTransactions = prevReviewTx
+		account.Transactions = prevFinishedTx
 		return false, err
 	}
 
