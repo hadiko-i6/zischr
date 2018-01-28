@@ -34,7 +34,7 @@ func (ts *TerminalState) UpdateUUID() {
 
 type Backend struct {
 	db            db.DB
-	terminalsLock sync.RWMutex
+	terminalsLock sync.Mutex
 	terminals     map[string]*TerminalState
 }
 
@@ -90,8 +90,8 @@ func (b *Backend) GetState(ctx context.Context, req *rpc.TerminalStateRequest) (
 		}
 	}
 
-	b.terminalsLock.RLock()
-	defer b.terminalsLock.RUnlock()
+	b.terminalsLock.Lock()
+	defer b.terminalsLock.Unlock()
 	ts := b.lazyTerminalState(req.TerminalID)
 
 	res.UUID = ts.UUID.String()
