@@ -1,0 +1,452 @@
+//
+// Copyright (C) 2018 Christian Schwarz
+//
+// This work is open source software, licensed under the terms of the
+// MIT license as described in the LICENSE file in the top-level directory.
+
+package cmd
+
+import (
+	"time"
+	"errors"
+	"log"
+	"regexp"
+	"sync"
+	"encoding/json"
+	"os"
+	"path"
+	"strings"
+	"fmt"
+	"io/ioutil"
+)
+
+type FSDB struct {
+	dbDir string
+
+	lock         sync.RWMutex
+	productsByID map[string]*Product
+	accountsByID map[string]*Account
+}
+
+
+type Product struct {
+	DisplayName    string
+	ID             string
+	UnitPrice      Money
+	NotInventoried bool
+}
+
+type Money struct {
+	cents int32
+}
+
+func (m Money) Cents() int32 {
+	return int32(m.cents)
+}
+
+func (m Money) Add(a Money) Money {
+	return Money{m.cents + a.cents}
+}
+
+type Transaction struct {
+	Date time.Time
+	Description string
+	ProductIdentifier string
+	Amount Money
+}
+
+func TransactionFromProduct(product Product, date time.Time) Transaction {
+	return Transaction{
+		date,
+		product.DisplayName,
+		product.ID,
+		product.UnitPrice,
+	}
+}
+
+type Account struct {
+	// ID is the filename, should not be in JSON
+	ID           string `json:"-"`
+	DisplayName  string
+	FinishedTransactions []Transaction
+	ReviewTransactions []Transaction
+}
+
+func (d *FSDB) deriveProduct(productID string) (*Product, error) {
+	d.lock.Lock()
+	defer d.lock.Unlock()
+
+	var EANProductIDRegex *regexp.Regexp = regexp.MustCompile(`^EAN:([0-9])+$`)
+
+	if !EANProductIDRegex.MatchString(productID) {
+		return nil, errors.New("not an EAN ProductID")
+	}
+	return &Product{
+		ID:             productID,
+		DisplayName:    productID,
+		NotInventoried: true,
+	}, nil
+}
+
+func (d *FSDB) validateFilename(filename string) (error) {
+	base := path.Base(filename)
+	switch {
+	case base != filename:
+		return errors.New("filename must not be a path")
+	case strings.HasPrefix(base, "."):
+		return errors.New("file must not start with a '.'")
+	case base == "." || base == "..":
+		return errors.New("filename must not be '.' or '..'")
+	}
+	return nil
+}
+
+func (d *FSDB) validateAccountFilename(accountFilename string) (err error) {
+	if err = d.validateFilename(accountFilename); err != nil {
+		return err
+	}
+	if !strings.HasSuffix(path.Base(accountFilename), ".account.json") {
+		return errors.New("filename must end with '.account.json'")
+	}
+	return nil
+}
+
+func (d *FSDB) persistAccount(account *Account) (err error) {
+	log.Printf("persisting account '%s (%s)'", account.ID, account.DisplayName)
+	return d.atomicallyPersistJSON(account, account.ID)
+}
+
+var DBInconsistentError = errors.New("database inconsistent")
+var DBFSError = errors.New("database filesystem error")
+var DBSerializationErrror = errors.New("database serialization error")
+
+const PRODUCTS_FILE_FILENAME = "products.json"
+const ATOMIC_SAVE_NEW_SUFFIX = ".fsdb.new"
+const ATOMIC_SAVE_OLD_SUFFIX = ".fsdb.old"
+
+func (d *FSDB) atomicallyPersistJSON(i interface{}, filename string) (err error) {
+
+	if err = d.validateFilename(filename); err != nil {
+		return err
+	}
+
+	newPath := path.Join(d.dbDir, filename + ATOMIC_SAVE_NEW_SUFFIX)
+	bakPath := path.Join(d.dbDir, filename + ATOMIC_SAVE_OLD_SUFFIX)
+	filePath := path.Join(d.dbDir, filename)
+
+	// file must not exist
+	newFile, err := os.OpenFile(newPath, os.O_WRONLY|os.O_EXCL|os.O_CREATE, 0600)
+	if err != nil {
+		log.Printf("cannot open new file '%s': %s", newFile, err)
+		return DBFSError
+	}
+	defer newFile.Close()
+
+	enc := json.NewEncoder(newFile)
+	enc.SetIndent("", "  ")
+	err = enc.Encode(i)
+	if err != nil {
+		log.Printf("cannot encode: %s", err)
+		return DBSerializationErrror
+	}
+
+	if err = newFile.Sync(); err != nil {
+		log.Printf("sync error: %s", err)
+		return DBFSError
+	}
+	if err = newFile.Close(); err != nil {
+		log.Printf("close error: %s", err)
+		return DBFSError
+	}
+
+	return d.atomicallyReplaceFile(filePath, newPath, bakPath)
+}
+
+func (d *FSDB) atomicallyReplaceFile(filePath, newPath, bakPath string) (err error) {
+
+	if err = os.Link(filePath, bakPath); err != nil {
+		log.Printf("could not hard-link '%s' to '%s': %s", filePath, bakPath, err)
+		return DBFSError
+	}
+	// On Linux, rename is atomic since we know tmpPath and newPath are on the same partition
+	// (since they are in same dir)
+	if err = os.Rename(newPath, filePath); err != nil {
+		log.Printf("could not rename '%s' to '%s': %s", newPath, filePath, err)
+		return DBFSError
+	}
+	if err = os.Remove(bakPath); err != nil {
+		log.Printf("could not unlink backup file '%s': %s", bakPath, err)
+		// return error anyways since otherwise the next attempt is inconsistent
+		return DBFSError
+	}
+
+	return nil
+}
+
+// filePath relative to dbDir
+func (db *FSDB) isAtomicReplaceCorruptionArtifact(filePath string) bool {
+	return strings.HasSuffix(filePath, ATOMIC_SAVE_OLD_SUFFIX) ||
+		strings.HasSuffix(filePath, ATOMIC_SAVE_NEW_SUFFIX)
+}
+
+// mainFile relative to dbDir
+func (db *FSDB) repairAtomicReplaceCorruption(mainFilePath string) (err error) {
+
+	mainFilePath = path.Join(db.dbDir, mainFilePath)
+
+	if db.isAtomicReplaceCorruptionArtifact(mainFilePath) {
+		log.Panicf("corruption artifact passed as mainFilePath: %s", mainFilePath)
+	}
+
+	main, err := os.Stat(mainFilePath)
+	if err != nil {
+		return DBFSError
+	}
+	oldPath := mainFilePath + ATOMIC_SAVE_OLD_SUFFIX
+	old, err := os.Stat(oldPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			old = nil
+		} else {
+			return DBFSError
+		}
+	}
+	newPath := mainFilePath + ATOMIC_SAVE_NEW_SUFFIX
+	new, err := os.Stat(newPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			new = nil
+		} else {
+			return DBFSError
+		}
+	}
+	checkDir := func(stat os.FileInfo) (err error){
+		if stat == nil {
+			return nil
+		}
+		if main.IsDir() {
+			log.Printf("%s is a directory")
+			return DBInconsistentError
+		}
+		return nil
+	}
+
+	if err := checkDir(main); err != nil {
+		return err
+	}
+	if err := checkDir(old); err != nil {
+		return err
+	}
+	if err := checkDir(new); err != nil {
+		return err
+	}
+
+	if new == nil && old == nil {
+		// nothing to repair
+		return nil
+	}
+
+	log.Printf("assessing corruption of '%s'", mainFilePath)
+
+	if new == nil && old != nil {
+		log.Printf("removing stale backup file %s", oldPath)
+		if err := os.Remove(oldPath); err != nil {
+			log.Printf("error: %s", err)
+			return DBFSError
+		}
+		return nil
+	}
+
+	if new != nil && old != nil {
+		log.Printf("assuming rename operation failed, complete it")
+		if err := db.atomicallyReplaceFile(mainFilePath, newPath, oldPath); err != nil {
+			log.Printf("error: %s", err)
+			return err
+		}
+		return nil
+	}
+	if new != nil && old == nil {
+		log.Printf("assuming started but uncommitted transaction: abort it")
+		if err := os.Remove(newPath); err != nil {
+			log.Println("error: %s", err)
+			return DBFSError
+		}
+		return nil
+	}
+
+	return DBInconsistentError
+}
+
+func NewFSDB(dbDir string) (*FSDB, error) {
+
+	db := &FSDB{
+		dbDir: dbDir,
+	}
+
+	entries, err := ioutil.ReadDir(dbDir)
+	if err != nil {
+		log.Printf("cannot list dbDir '%s': %s", dbDir, err)
+		return nil, DBFSError
+	}
+
+	// Load state from disk
+	var productsFileInfo os.FileInfo
+	accountsFileInfos := make([]os.FileInfo, 0, len(entries))
+	for i := range entries {
+		if entries[i].Name() == PRODUCTS_FILE_FILENAME {
+			log.Printf("found products file: %s", entries[i].Name())
+			if err := db.repairAtomicReplaceCorruption(entries[i].Name()); err != nil {
+				log.Printf("error reparing products file corruption: %s", err)
+				return nil, DBInconsistentError
+			}
+			productsFileInfo = entries[i]
+			continue
+		}
+		if perr := db.validateAccountFilename(entries[i].Name()); perr == nil {
+			log.Printf("found account filename: %s", entries[i].Name())
+			if err := db.repairAtomicReplaceCorruption(entries[i].Name()); err != nil {
+				log.Printf("error repairing account file: %s", err)
+				return nil, DBInconsistentError
+			}
+			accountsFileInfos = append(accountsFileInfos, entries[i])
+			continue
+		}
+		// check if it's a corruption artifact of an account where the main file was moved
+		if db.isAtomicReplaceCorruptionArtifact(entries[i].Name()) {
+			log.Panicf("found atomic replace corruption artifact: %s", entries[i].Name())
+		}
+		log.Printf("warning: unknown file %s in dbDir", entries[i].Name())
+	}
+
+	openAndUnmarshal := func(fi os.FileInfo, i interface{}) (err error) {
+		p := path.Join(dbDir, fi.Name())
+		f, err := os.Open(p)
+		if err != nil {
+			log.Printf("cannot open %s: %s", p, err)
+			return DBFSError
+		}
+		defer f.Close()
+		if err := json.NewDecoder(f).Decode(i); err != nil {
+			log.Printf("cannot unmarshal %s: %s", p, err)
+			return DBSerializationErrror
+		}
+		return nil
+	}
+
+	// load products
+	if productsFileInfo == nil {
+		return nil, errors.New(fmt.Sprintf("%s not found", PRODUCTS_FILE_FILENAME))
+	}
+	if err = openAndUnmarshal(productsFileInfo, &db.productsByID); err != nil {
+		log.Printf("cannot unmarshal %s: %s", productsFileInfo.Name(), err)
+		return nil, err
+	}
+
+	// load accounts
+	db.accountsByID = make(map[string]*Account)
+	for _, afi := range accountsFileInfos {
+		var account Account
+		if err = openAndUnmarshal(afi, &account); err != nil {
+			return nil, err
+		}
+		if account.ID != "" {
+			log.Printf("account.ID set on dis for account %s", afi.Name())
+			return nil, DBInconsistentError
+		}
+		account.ID = afi.Name()
+		db.accountsByID[account.ID] = &account // TODO check excape analysis
+	}
+
+	return db, nil
+
+}
+
+func (db *FSDB) GetOrDeriveProduct(productID string) (prod Product, err error) {
+
+	log.Printf("GetOrDeriveProduct: %s", productID)
+
+	if len(productID) == 0 {
+		return Product{}, errors.New("invalid length")
+	}
+
+	db.lock.RLock()
+	product, exists := db.productsByID[productID]
+	db.lock.RUnlock()
+	if !exists {
+		log.Printf("deriving product from product ID: %s", productID)
+		product, err = db.deriveProduct(productID)
+		if err != nil {
+			log.Printf("error deriving product from product ID: %s", err)
+			return Product{}, errors.New("cannot derive product from ID")
+		} else {
+			log.Printf("adding product to products list")
+			db.lock.Lock()
+			defer db.lock.Unlock()
+			db.productsByID[product.ID] = product
+			if err = db.atomicallyPersistJSON(db.productsByID, PRODUCTS_FILE_FILENAME); err != nil {
+				log.Println("failed to persist product list: %s", err)
+				return Product{}, err
+			}
+		}
+	}
+
+	return *product, nil
+}
+
+func (db *FSDB) CommitPendingOrder(accountID string, po *PendingOrder) (inputError bool, err error) {
+	db.lock.Lock()
+	defer db.lock.Unlock()
+
+	if po == nil {
+		log.Panic("pending order is nil")
+	}
+
+	account, ok := db.accountsByID[accountID]
+	if !ok {
+		log.Printf("invalid account ID: %s", account)
+		return true, errors.New("account does not exist")
+	}
+
+	newFinishedTx := make([]Transaction, 0, len(po.Products))
+	newReviewTx := make([]Transaction, 0, len(po.Products))
+	t := time.Now()
+	for _, p := range po.Products {
+		tx := TransactionFromProduct(p, t)
+		if p.NotInventoried {
+			newReviewTx = append(newReviewTx, tx)
+		} else {
+			newFinishedTx = append(newFinishedTx, tx)
+		}
+	}
+
+	// Atomically update transactions on disk
+	// TODO check if this really works
+	prevFinishedTx := account.FinishedTransactions[:]
+	prevReviewTx := account.ReviewTransactions[:]
+
+	account.FinishedTransactions = append(account.FinishedTransactions, newFinishedTx...)
+	account.ReviewTransactions = append(account.ReviewTransactions, newReviewTx...)
+	err = db.persistAccount(account)
+	if  err != nil {
+		log.Printf("error persisting account '%s': %s", account.ID, err)
+		log.Printf("rolling back to pre-transaction state")
+		account.FinishedTransactions = prevFinishedTx
+		account.ReviewTransactions = prevReviewTx
+		return false, err
+	}
+
+	return false, nil
+}
+
+func (db *FSDB) Accounts() (accounts []Account, err error) {
+	db.lock.RLock()
+	defer db.lock.RUnlock()
+
+	// Copy accounts list
+	accounts = make([]Account, 0, len(db.accountsByID))
+	for aid := range db.accountsByID {
+		accounts = append(accounts, *db.accountsByID[aid])
+	}
+
+	return accounts, nil
+}
