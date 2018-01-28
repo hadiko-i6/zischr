@@ -23,12 +23,11 @@ message TerminalStateResponse {
     message Order {
         string DisplayName = 1;
         sint32 Price = 2;
-        bool NotInventoried = 3;
+        bool NeedsReview = 3;
     }
     repeated Account Accounts = 1;
     repeated Order PendingOrders = 2;
     sint32 PendingOrdersTotal = 3;
-    bool PendingOrdersContainsNotInventoried = 4;
 }
 
 message TerminalBuyRequest {
