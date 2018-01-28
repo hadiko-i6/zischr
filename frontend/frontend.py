@@ -139,15 +139,18 @@ class i6MainWindow(QMainWindow):
         self.ui.mainWidgetStack.removeWidget(self.cashinWidget)
         del self.cashinWidget
 
-        request = main_pb2.TerminalAddDepositOrderRequest()
-        request.TerminalID = self.terminalId
-        request.CashInAmount = amount
+        if amount is not None:
+            request = main_pb2.TerminalAddDepositOrderRequest()
+            request.TerminalID = self.terminalId
+            request.CashInAmount = amount
 
-        try:
-            response = self.backendStub.AddDepositOrder(request)
-        except Exception as e:
-            print(e)
-            raise
+            try:
+                response = self.backendStub.AddDepositOrder(request)
+            except Exception as e:
+                print(e)
+                raise
+        else:
+            self.CancelButtonPressed()
 
     def updateButtons(self):
         if self.lastAccounts == list(self.state.Accounts):    # Current button state is equal to previous, no need to update
