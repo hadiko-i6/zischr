@@ -350,6 +350,8 @@ if __name__ == "__main__":
     parser.add_argument('--backendurl', help='URL to backend', default="localhost:8080")
     parser.add_argument('--windowed', help='Fullscreen mode', default=True, action="store_true")
     parser.add_argument('--bimi', help='Name of the guy administrating everything', default="Bimi")
+    parser.add_argument('--winwidth', help='Window width (also works for fullscreen)', default=1024, type=int)
+    parser.add_argument('--winheight', help='Window height(also works for fullscreen)', default=768, type=int)
 
     args = parser.parse_args()
 
@@ -360,5 +362,8 @@ if __name__ == "__main__":
         window.showFullScreen()
     else:
         window.show()
+
+    window.resize(args.winwidth, args.winheight)
+
     window.scaleTables()
     sys.exit(app.exec_())
