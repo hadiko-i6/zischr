@@ -7,7 +7,8 @@ from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QResizeEvent
 
 from frontendgui import Ui_MainWindow
-from cashingui import Ui_Form
+import cashingui
+import confirmgui
 import math
 
 import grpc
@@ -25,7 +26,7 @@ class i6CashInWidget(QWidget):
     def __init__(self, *args, **kwargs):
         super(i6CashInWidget, self).__init__(*args, **kwargs)
 
-        self.ui = Ui_Form()
+        self.ui = cashingui.Ui_Form()
         self.ui.setupUi(self)
 
         self.inputBuf = ""
@@ -58,9 +59,23 @@ class i6CashInWidget(QWidget):
         self.ui.Ok.clicked.connect(lambda x: self.doneCB(self.amount))
         self.ui.Cancel.clicked.connect(lambda x: self.doneCB(None))
 
+class i6ConfirmWidget(QWidget):
+    def __init__(self, name, *args, **kwargs):
+        super(i6ConfirmWidget, self).__init__(*args, **kwargs)
+
+        self.ui = confirmgui.Ui_Form()
+        self.ui.setupUi(self)
+
+        self.ui.confirmLabel.setText("Are you: %s ?" % name)
+
+        self.doneCB = None
+
+        self.ui.Yes.clicked.connect(lambda x: self.doneCB(True))
+        self.ui.No.clicked.connect(lambda x: self.doneCB(False))
+
 
 class i6MainWindow(QMainWindow):
-    def __init__(self, terminalId, *args, **kwargs):
+    def __init__(self, terminalId, channelUrl, *args, **kwargs):
         super(i6MainWindow, self).__init__(*args, **kwargs)
 
         self.terminalId = terminalId
@@ -78,7 +93,7 @@ class i6MainWindow(QMainWindow):
         self.state = main_pb2.TerminalStateResponse()
         self.sortedAccounts = []
 
-        self.channel = grpc.insecure_channel('localhost:8080')  # TODO: set as arg
+        self.channel = grpc.insecure_channel(channelUrl)  # TODO: set as arg
         self.backendStub = main_pb2_grpc.TerminalBackendStub(self.channel)
 
         self.buttons = []
@@ -98,6 +113,9 @@ class i6MainWindow(QMainWindow):
         self.mainWidget = self.ui.mainWidgetStack.widget(0)
         self.cashinOpen = False
         self.cashinWidget = None
+
+        self.confirmOpen = False
+        self.confirmWidget = None
 
     def timerCB(self, *args):
         self.pollState()
@@ -226,22 +244,32 @@ class i6MainWindow(QMainWindow):
 
     def NameButtonPressed(self, *args):
         clickedButton = self.sender()    # WTF why isn't this passed as argument?
-        clickedIndex = self.buttons.index(clickedButton)
-        print("Clicked: %s %s (%s)" % (clickedIndex, clickedButton.text(), clickedButton.userid))
+        userID = clickedButton.userid
 
-        # TODO: Confirmation dialog
+        self.confirmWidget = i6ConfirmWidget(clickedButton.text())
+        self.confirmWidget.doneCB = self.NameButtonPressedConfirmationCB
+        self.confirmWidget.userID = userID
+        self.ui.mainWidgetStack.insertWidget(1, self.confirmWidget)
+        self.ui.mainWidgetStack.setCurrentWidget(self.confirmWidget)
+        self.confirmOpen = True
 
-        request = main_pb2.TerminalBuyRequest()
-        request.TerminalID = self.terminalId
-        request.AccountID = clickedButton.userid
-        try:
-            pass
-            response = self.backendStub.Buy(request)
-        except Exception as e:
-            print(e)
-            raise
+        # TODO: Display returned error as modal dialog?
 
-        # TODO: Display returned error as modal dialog
+    def NameButtonPressedConfirmationCB(self, ack):
+        if ack:
+            request = main_pb2.TerminalBuyRequest()
+            request.TerminalID = self.terminalId
+            request.AccountID = self.confirmWidget.userID
+            try:
+                pass
+                response = self.backendStub.Buy(request)
+            except Exception as e:
+                print(e)
+                raise
+
+        self.ui.mainWidgetStack.setCurrentWidget(self.mainWidget)
+        self.ui.mainWidgetStack.removeWidget(self.confirmWidget)
+        self.confirmOpen = False
 
     def CancelButtonPressed(self):
         request = main_pb2.AbortRequest()
@@ -270,10 +298,18 @@ class i6MainWindow(QMainWindow):
         self.ui.accountsList.setColumnWidth(2, 0.35 * accountlistSize.width())
         self.ui.accountsList.setColumnWidth(3, 0.15 * accountlistSize.width())
 
+import argparse
 
-app = QApplication(sys.argv)
-window = i6MainWindow("Foo")
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('--id', help='foo help', default="Foo")
+    parser.add_argument('--backendurl', help='foo help', default="localhost:8080")
 
-window.show()
-window.scaleTables()
-sys.exit(app.exec_())
+    args = parser.parse_args()
+
+    app = QApplication(sys.argv)
+    window = i6MainWindow(args.id, args.backendurl)
+
+    window.show()
+    window.scaleTables()
+    sys.exit(app.exec_())
