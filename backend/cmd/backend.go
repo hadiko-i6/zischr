@@ -97,7 +97,9 @@ func (b *Backend) GetState(ctx context.Context, req *rpc.TerminalStateRequest) (
 
 	res.UUID = ts.UUID.String()
 	res.CashInScanReceived = ts.CashInScanReceived
-	res.LastScanError = ts.LastScanError.Error()
+	if ts.LastScanError != nil {
+		res.LastScanError = ts.LastScanError.Error()
+	}
 
 	var pendingTotal db.Money
 	res.PendingOrders = make([]*rpc.TerminalStateResponse_Order, len(ts.PendingTransactions))
