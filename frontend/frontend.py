@@ -91,7 +91,7 @@ class i6MainWindow(QMainWindow):
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.timerCB)
-        self.timer.start(1000)
+        self.timer.start(100)
 
         self.ui.cancelButton.clicked.connect(self.CancelButtonPressed)
 
