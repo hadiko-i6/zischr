@@ -35,6 +35,7 @@ message TerminalStateResponse {
 message TerminalBuyRequest {
     string TerminalID = 1;
     string AccountID = 2;
+    string UUID = 3;
 }
 
 message TerminalBuyResponse {

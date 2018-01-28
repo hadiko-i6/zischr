@@ -93,14 +93,13 @@ class i6MainWindow(QMainWindow):
         self.state = main_pb2.TerminalStateResponse()
         self.sortedAccounts = []
 
-        self.channel = grpc.insecure_channel(channelUrl)  # TODO: set as arg
+        self.channel = grpc.insecure_channel(channelUrl)
         self.backendStub = main_pb2_grpc.TerminalBackendStub(self.channel)
 
         self.buttons = []
-        self.lastAccounts = []    # Stores the last list of button names to be updated
         self.spacer = None  # Spacer for formatting buttons
 
-        self.lastOrders = None
+        self.prevUUID = None
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.timerCB)
@@ -146,7 +145,7 @@ class i6MainWindow(QMainWindow):
 
     def checkCashin(self):
         if not self.cashinOpen:
-            if self.state.CashInScanReceived:    # MAGIC TOKEN #TODO: Change to actual magic token
+            if self.state.CashInScanReceived:
                 self.cashinWidget = i6CashInWidget()
                 self.cashinWidget.doneCB = self.cashinDone
                 self.ui.mainWidgetStack.insertWidget(1, self.cashinWidget)
@@ -173,7 +172,7 @@ class i6MainWindow(QMainWindow):
             self.CancelButtonPressed()
 
     def updateButtons(self):
-        if self.lastAccounts == list(self.state.Accounts):    # Current button state is equal to previous, no need to update
+        if self.prevUUID == self.state.UUID:    # Current button state is equal to previous, no need to update
             return
 
         # Delete old buttons
@@ -203,7 +202,7 @@ class i6MainWindow(QMainWindow):
         self.lastAccounts = list(self.sortedAccounts)
 
     def updateOrdersList(self):
-        if self.lastOrders == list(self.state.PendingOrders):    # Current button state is equal to previous, no need to update
+        if self.prevUUID == self.state.UUID:    # Current button state is equal to previous, no need to update
             return
 
         self.NameButtonPressedConfirmationCB(False)     # In case somebody scanned in drink during confirm dialog, cancel!
@@ -220,15 +219,18 @@ class i6MainWindow(QMainWindow):
             nameWidget = QTableWidgetItem(order.DisplayName)
             self.ui.currentOrderList.setItem(i, 0, nameWidget)
 
-            priceWdiget = QTableWidgetItem("€%.2f" % (order.Price / 100))
+            priceWdiget = QTableWidgetItem("%.2f€" % (order.Price / 100))
             priceWdiget.setTextAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             self.ui.currentOrderList.setItem(i, 1, priceWdiget)
 
         self.lastOrders = list(self.state.PendingOrders)
 
-        # TODO: Totals Entry at bottom
+        self.ui.totalAmountLabel.setText("%.2f€" % (self.state.PendingOrdersTotal / 100))
 
     def updateAccountsList(self):
+        if self.prevUUID == self.state.UUID:
+            return
+
         self.ui.accountsList.clear()
 
         self.ui.accountsList.setColumnCount(4)
@@ -246,7 +248,7 @@ class i6MainWindow(QMainWindow):
             nameWidget = QTableWidgetItem(account.DisplayName)
             self.ui.accountsList.setItem(math.floor(i / 2), 0 + columnoffset, nameWidget)
 
-            balanceWidget = QTableWidgetItem("€%.2f" % (account.Balance / 100))
+            balanceWidget = QTableWidgetItem("%.2f€" % (account.Balance / 100))
             balanceWidget.setTextAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             self.ui.accountsList.setItem(math.floor(i / 2), 1 + columnoffset, balanceWidget)
 
@@ -269,6 +271,7 @@ class i6MainWindow(QMainWindow):
             request = main_pb2.TerminalBuyRequest()
             request.TerminalID = self.terminalId
             request.AccountID = self.confirmWidget.userID
+            #request.UUID = self.state.UUID
             try:
                 pass
                 response = self.backendStub.Buy(request)
@@ -307,6 +310,9 @@ class i6MainWindow(QMainWindow):
         self.ui.accountsList.setColumnWidth(1, 0.15 * accountlistSize.width())
         self.ui.accountsList.setColumnWidth(2, 0.35 * accountlistSize.width())
         self.ui.accountsList.setColumnWidth(3, 0.15 * accountlistSize.width())
+
+        orderlistSize = self.ui.currentOrderList.maximumViewportSize()
+        self.ui.totalAmountLabel.setFixedWidth(0.2 * orderlistSize.width())
 
 import argparse
 
