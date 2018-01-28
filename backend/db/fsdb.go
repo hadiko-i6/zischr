@@ -4,7 +4,7 @@
 // This work is open source software, licensed under the terms of the
 // MIT license as described in the LICENSE file in the top-level directory.
 
-package cmd
+package db
 
 import (
 	"time"
@@ -29,48 +29,6 @@ type FSDB struct {
 }
 
 
-type Product struct {
-	DisplayName    string
-	ID             string
-	UnitPrice      Money
-	NotInventoried bool
-}
-
-type Money struct {
-	cents int32
-}
-
-func (m Money) Cents() int32 {
-	return int32(m.cents)
-}
-
-func (m Money) Add(a Money) Money {
-	return Money{m.cents + a.cents}
-}
-
-type Transaction struct {
-	Date time.Time
-	Description string
-	ProductIdentifier string
-	Amount Money
-}
-
-func TransactionFromProduct(product Product, date time.Time) Transaction {
-	return Transaction{
-		date,
-		product.DisplayName,
-		product.ID,
-		product.UnitPrice,
-	}
-}
-
-type Account struct {
-	// ID is the filename, should not be in JSON
-	ID           string `json:"-"`
-	DisplayName  string
-	FinishedTransactions []Transaction
-	ReviewTransactions []Transaction
-}
 
 func (d *FSDB) deriveProduct(productID string) (*Product, error) {
 	d.lock.Lock()

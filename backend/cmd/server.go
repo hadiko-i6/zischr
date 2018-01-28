@@ -12,6 +12,7 @@ import (
 	"github.com/spf13/cobra"
 	"net"
 	"google.golang.org/grpc"
+	"github.com/hadiko-i6/i6getraenkeabrechnungssystem3000/backend/db"
 )
 
 var argsServer struct {
@@ -29,7 +30,7 @@ var serverCmd = &cobra.Command{
 	Short: "Run backend server.",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		db, err := NewFSDB(argsGlobal.dbDir)
+		fsdb, err := db.NewFSDB(argsGlobal.dbDir)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -41,7 +42,7 @@ var serverCmd = &cobra.Command{
 		log.Printf("listening: %s", argsServer.port)
 
 		grpcServer := grpc.NewServer()
-		srv := NewBackend(db)
+		srv := NewBackend(fsdb)
 		rpc.RegisterTerminalBackendServer(grpcServer, srv)
 		grpcServer.Serve(lis)
 	},

@@ -8,6 +8,7 @@
 package cmd
 
 import (
+	"github.com/hadiko-i6/i6getraenkeabrechnungssystem3000/backend/db"
 	"github.com/hadiko-i6/i6getraenkeabrechnungssystem3000/backend/rpc"
 	"log"
 	"golang.org/x/net/context"
@@ -16,37 +17,25 @@ import (
 	"sync"
 )
 
-
-type DB interface {
-	GetOrDeriveProduct(productID string) (prod Product, err error)
-	CommitPendingOrder(accountID string, po *PendingOrder) (inputError bool, err error)
-	Accounts() (accounts []Account, err error)
-}
-
-type PendingOrder struct {
-	Products []Product
-	LastModified time.Time
-}
-
 type Backend struct {
-	db                      DB
+	db                      db.DB
 	pendingLock             sync.RWMutex
-	pendingOrdersByTerminal map[string]*PendingOrder
+	pendingOrdersByTerminal map[string]*db.PendingOrder
 }
 
-func NewBackend(db DB) *Backend {
+func NewBackend(useDB db.DB) *Backend {
 	return &Backend{
-		db: db,
-		pendingOrdersByTerminal: make(map[string]*PendingOrder),
+		db: useDB,
+		pendingOrdersByTerminal: make(map[string]*db.PendingOrder),
 	}
 }
 
-func (b *Backend) lazyPendingOrders(terminalID string) (*PendingOrder) {
+func (b *Backend) lazyPendingOrders(terminalID string) (*db.PendingOrder) {
 	po, ok := b.pendingOrdersByTerminal[terminalID]
 	if !ok || po == nil {
-		po = &PendingOrder{
+		po = &db.PendingOrder{
 			LastModified: time.Now(),
-			Products: make([]Product, 0, 10),
+			Products: make([]db.Product, 0, 10),
 		}
 		b.pendingOrdersByTerminal[terminalID] = po
 		return po
@@ -72,7 +61,7 @@ func (b *Backend) GetState(ctx context.Context, req *rpc.TerminalStateRequest) (
 	} else {
 		res.Accounts = make([]*rpc.TerminalStateResponse_Account, len(accounts))
 		for i, a := range accounts {
-			var balance Money
+			var balance db.Money
 			for _, t := range a.FinishedTransactions {
 				balance.Add(t.Amount)
 			}
@@ -85,7 +74,7 @@ func (b *Backend) GetState(ctx context.Context, req *rpc.TerminalStateRequest) (
 	b.pendingLock.RLock()
 	defer b.pendingLock.RUnlock()
 	po := b.lazyPendingOrders(req.TerminalID)
-	var pendingTotal Money
+	var pendingTotal db.Money
 	res.PendingOrders = make([]*rpc.TerminalStateResponse_Order, len(po.Products))
 	for i, p := range po.Products {
 		pendingTotal.Add(p.UnitPrice)
@@ -160,3 +149,6 @@ func (b *Backend) Scan(ctx context.Context, req *rpc.TerminalScanRequest) (res *
 
 }
 
+func (b *Backend) AddDepositOrder(context.Context, *rpc.TerminalAddDepositOrderRequest) (*rpc.TerminalAddDepositOrderResponse, error) {
+	panic("implement me")
+}
