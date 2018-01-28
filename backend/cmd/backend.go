@@ -19,6 +19,7 @@ import (
 
 type TerminalState struct {
 	PendingTransactions []db.Transaction
+	CashInScanReceived bool
 }
 
 type Backend struct {
@@ -77,6 +78,9 @@ func (b *Backend) GetState(ctx context.Context, req *rpc.TerminalStateRequest) (
 	b.terminalsLock.RLock()
 	defer b.terminalsLock.RUnlock()
 	ts := b.lazyTerminalState(req.TerminalID)
+
+	res.CashInScanReceived = ts.CashInScanReceived
+
 	var pendingTotal db.Money
 	res.PendingOrders = make([]*rpc.TerminalStateResponse_Order, len(ts.PendingTransactions))
 	for i, p := range ts.PendingTransactions {
@@ -139,27 +143,59 @@ func TransactionFromProduct(product db.Product, date time.Time) db.Transaction {
 	}
 }
 
+func CashInTransaction(amount db.Money, date time.Time) db.Transaction {
+	return db.Transaction{
+		date,
+		"Cash-In",
+		"",
+		amount,
+		false,
+	}
+}
+
+const (
+	PRODUCT_ID_MAGIC_CASHIN = "Magic:CashIn"
+)
+
 func (b *Backend) Scan(ctx context.Context, req *rpc.TerminalScanRequest) (res *rpc.TerminalScanResponse, err error) {
 
 	if req.TerminalID == "" {
 		return nil, errors.New("TerminalID missing")
 	}
 
-	prod, err := b.db.GetOrDeriveProduct(req.ProductID)
-	if err != nil {
-		log.Panicf("could not get product: %s", err)
-	}
-
 	b.terminalsLock.Lock()
 	defer b.terminalsLock.Unlock()
 
 	t := b.lazyTerminalState(req.TerminalID)
+
+	if req.ProductID == PRODUCT_ID_MAGIC_CASHIN {
+		t.CashInScanReceived = true
+		return &rpc.TerminalScanResponse{}, nil
+	}
+
+	prod, err := b.db.GetOrDeriveProduct(req.ProductID)
+	if err == db.DBDeriveProductError {
+		return &rpc.TerminalScanResponse{err.Error()}, nil
+	} else if err != nil {
+		log.Panic(err.Error())
+	}
 	t.PendingTransactions = append(t.PendingTransactions, TransactionFromProduct(prod, time.Now()))
 
 	return &rpc.TerminalScanResponse{}, nil
 
 }
 
-func (b *Backend) AddDepositOrder(context.Context, *rpc.TerminalAddDepositOrderRequest) (*rpc.TerminalAddDepositOrderResponse, error) {
-	panic("implement me")
+func (b *Backend) AddDepositOrder(ctx context.Context, req *rpc.TerminalAddDepositOrderRequest) (*rpc.TerminalAddDepositOrderResponse, error) {
+
+	b.terminalsLock.Lock()
+	defer b.terminalsLock.Unlock()
+
+	t := b.lazyTerminalState(req.TerminalID)
+
+	tx := CashInTransaction(db.NewMoney(req.CashInAmount), time.Now())
+	t.PendingTransactions = append(t.PendingTransactions, tx)
+
+	t.CashInScanReceived = false
+
+	return &rpc.TerminalAddDepositOrderResponse{}, nil
 }

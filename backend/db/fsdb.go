@@ -7,7 +7,6 @@
 package db
 
 import (
-	"time"
 	"errors"
 	"log"
 	"regexp"
@@ -326,12 +325,12 @@ func NewFSDB(dbDir string) (*FSDB, error) {
 
 }
 
+var DBDeriveProductError = errors.New("cannot derive product")
+
 func (db *FSDB) GetOrDeriveProduct(productID string) (prod Product, err error) {
 
-	log.Printf("GetOrDeriveProduct: %s", productID)
-
 	if len(productID) == 0 {
-		return Product{}, errors.New("invalid length")
+		return Product{}, DBDeriveProductError
 	}
 
 	db.lock.RLock()
@@ -342,14 +341,14 @@ func (db *FSDB) GetOrDeriveProduct(productID string) (prod Product, err error) {
 		product, err = db.deriveProduct(productID)
 		if err != nil {
 			log.Printf("error deriving product from product ID: %s", err)
-			return Product{}, errors.New("cannot derive product from ID")
+			return Product{}, DBDeriveProductError
 		} else {
 			log.Printf("adding product to products list")
 			db.lock.Lock()
 			defer db.lock.Unlock()
 			db.productsByID[product.ID] = product
 			if err = db.atomicallyPersistJSON(db.productsByID, PRODUCTS_FILE_FILENAME); err != nil {
-				log.Println("failed to persist product list: %s", err)
+				log.Println("failed to persist products list: %s", err)
 				return Product{}, err
 			}
 		}
@@ -373,11 +372,10 @@ func (db *FSDB) CommitTransactions(accountID string, transactions []Transaction)
 	}
 
 	// Copy transactions to provide rollback on error
-	newTxes := make([]Transaction, 0, len(transactions))
-	t := time.Now()
-	for _, p := range transactions {
+	newTxes := make([]Transaction, len(transactions))
+	for i, p := range transactions {
 		var tx = p
-		tx.Date = t
+		newTxes [i] = tx
 	}
 
 	// Atomically update transactions on disk
