@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='main.proto',
   package='i6getraenkeabrechnungssystem3000.rpc',
   syntax='proto3',
-  serialized_pb=_b('\n\nmain.proto\x12$i6getraenkeabrechnungssystem3000.rpc\"*\n\x14TerminalStateRequest\x12\x12\n\nTerminalID\x18\x01 \x01(\t\"\xc2\x02\n\x15TerminalStateResponse\x12U\n\x08\x41\x63\x63ounts\x18\x01 \x03(\x0b\x32\x43.i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.Account\x12T\n\tOrderList\x18\x02 \x03(\x0b\x32\x41.i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.Order\x1a;\n\x07\x41\x63\x63ount\x12\n\n\x02ID\x18\x01 \x01(\t\x12\x13\n\x0b\x44isplayName\x18\x02 \x01(\t\x12\x0f\n\x07\x42\x61lance\x18\x03 \x01(\x11\x1a?\n\x05Order\x12\x13\n\x0b\x44isplayName\x18\x01 \x01(\t\x12\x11\n\tUnitPrice\x18\x02 \x01(\x11\x12\x0e\n\x06\x41mount\x18\x03 \x01(\r\";\n\x12TerminalBuyRequest\x12\x12\n\nTerminalID\x18\x01 \x01(\t\x12\x11\n\tAccountID\x18\x02 \x01(\t\"$\n\x13TerminalBuyResponse\x12\r\n\x05\x45rror\x18\x01 \x01(\t\"<\n\x13TerminalScanRequest\x12\x12\n\nTerminalID\x18\x01 \x01(\t\x12\x11\n\tProductID\x18\x02 \x01(\t\"%\n\x14TerminalScanResponse\x12\r\n\x05\x45rror\x18\x01 \x01(\t\"\"\n\x0c\x41\x62ortRequest\x12\x12\n\nTerminalID\x18\x01 \x01(\t\"\x1e\n\rAbortResponse\x12\r\n\x05\x45rror\x18\x01 \x01(\t2\x8c\x04\n\x0fTerminalBackend\x12\x85\x01\n\x08GetState\x12:.i6getraenkeabrechnungssystem3000.rpc.TerminalStateRequest\x1a;.i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse\"\x00\x12|\n\x03\x42uy\x12\x38.i6getraenkeabrechnungssystem3000.rpc.TerminalBuyRequest\x1a\x39.i6getraenkeabrechnungssystem3000.rpc.TerminalBuyResponse\"\x00\x12\x7f\n\x04Scan\x12\x39.i6getraenkeabrechnungssystem3000.rpc.TerminalScanRequest\x1a:.i6getraenkeabrechnungssystem3000.rpc.TerminalScanResponse\"\x00\x12r\n\x05\x41\x62ort\x12\x32.i6getraenkeabrechnungssystem3000.rpc.AbortRequest\x1a\x33.i6getraenkeabrechnungssystem3000.rpc.AbortResponse\"\x00\x42\x05Z\x03rpcb\x06proto3')
+  serialized_pb=_b('\n\nmain.proto\x12$i6getraenkeabrechnungssystem3000.rpc\"*\n\x14TerminalStateRequest\x12\x12\n\nTerminalID\x18\x01 \x01(\t\"\x93\x03\n\x15TerminalStateResponse\x12U\n\x08\x41\x63\x63ounts\x18\x01 \x03(\x0b\x32\x43.i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.Account\x12X\n\rPendingOrders\x18\x02 \x03(\x0b\x32\x41.i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.Order\x12\x1a\n\x12PendingOrdersTotal\x18\x03 \x01(\x11\x12+\n#PendingOrdersContainsNotInventoried\x18\x04 \x01(\x08\x1a;\n\x07\x41\x63\x63ount\x12\n\n\x02ID\x18\x01 \x01(\t\x12\x13\n\x0b\x44isplayName\x18\x02 \x01(\t\x12\x0f\n\x07\x42\x61lance\x18\x03 \x01(\x11\x1a\x43\n\x05Order\x12\x13\n\x0b\x44isplayName\x18\x01 \x01(\t\x12\r\n\x05Price\x18\x02 \x01(\x11\x12\x16\n\x0eNotInventoried\x18\x03 \x01(\x08\";\n\x12TerminalBuyRequest\x12\x12\n\nTerminalID\x18\x01 \x01(\t\x12\x11\n\tAccountID\x18\x02 \x01(\t\"$\n\x13TerminalBuyResponse\x12\r\n\x05\x45rror\x18\x01 \x01(\t\"<\n\x13TerminalScanRequest\x12\x12\n\nTerminalID\x18\x01 \x01(\t\x12\x11\n\tProductID\x18\x02 \x01(\t\"%\n\x14TerminalScanResponse\x12\r\n\x05\x45rror\x18\x01 \x01(\t\"\"\n\x0c\x41\x62ortRequest\x12\x12\n\nTerminalID\x18\x01 \x01(\t\"\x1e\n\rAbortResponse\x12\r\n\x05\x45rror\x18\x01 \x01(\t2\x8c\x04\n\x0fTerminalBackend\x12\x85\x01\n\x08GetState\x12:.i6getraenkeabrechnungssystem3000.rpc.TerminalStateRequest\x1a;.i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse\"\x00\x12|\n\x03\x42uy\x12\x38.i6getraenkeabrechnungssystem3000.rpc.TerminalBuyRequest\x1a\x39.i6getraenkeabrechnungssystem3000.rpc.TerminalBuyResponse\"\x00\x12\x7f\n\x04Scan\x12\x39.i6getraenkeabrechnungssystem3000.rpc.TerminalScanRequest\x1a:.i6getraenkeabrechnungssystem3000.rpc.TerminalScanResponse\"\x00\x12r\n\x05\x41\x62ort\x12\x32.i6getraenkeabrechnungssystem3000.rpc.AbortRequest\x1a\x33.i6getraenkeabrechnungssystem3000.rpc.AbortResponse\"\x00\x42\x05Z\x03rpcb\x06proto3')
 )
 
 
@@ -96,8 +96,8 @@ _TERMINALSTATERESPONSE_ACCOUNT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=295,
-  serialized_end=354,
+  serialized_start=372,
+  serialized_end=431,
 )
 
 _TERMINALSTATERESPONSE_ORDER = _descriptor.Descriptor(
@@ -115,16 +115,16 @@ _TERMINALSTATERESPONSE_ORDER = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='UnitPrice', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.Order.UnitPrice', index=1,
+      name='Price', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.Order.Price', index=1,
       number=2, type=17, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='Amount', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.Order.Amount', index=2,
-      number=3, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
+      name='NotInventoried', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.Order.NotInventoried', index=2,
+      number=3, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
@@ -140,8 +140,8 @@ _TERMINALSTATERESPONSE_ORDER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=356,
-  serialized_end=419,
+  serialized_start=433,
+  serialized_end=500,
 )
 
 _TERMINALSTATERESPONSE = _descriptor.Descriptor(
@@ -159,9 +159,23 @@ _TERMINALSTATERESPONSE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='OrderList', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.OrderList', index=1,
+      name='PendingOrders', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.PendingOrders', index=1,
       number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='PendingOrdersTotal', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.PendingOrdersTotal', index=2,
+      number=3, type=17, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='PendingOrdersContainsNotInventoried', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.PendingOrdersContainsNotInventoried', index=3,
+      number=4, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
@@ -178,7 +192,7 @@ _TERMINALSTATERESPONSE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=97,
-  serialized_end=419,
+  serialized_end=500,
 )
 
 
@@ -215,8 +229,8 @@ _TERMINALBUYREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=421,
-  serialized_end=480,
+  serialized_start=502,
+  serialized_end=561,
 )
 
 
@@ -246,8 +260,8 @@ _TERMINALBUYRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=482,
-  serialized_end=518,
+  serialized_start=563,
+  serialized_end=599,
 )
 
 
@@ -284,8 +298,8 @@ _TERMINALSCANREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=520,
-  serialized_end=580,
+  serialized_start=601,
+  serialized_end=661,
 )
 
 
@@ -315,8 +329,8 @@ _TERMINALSCANRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=582,
-  serialized_end=619,
+  serialized_start=663,
+  serialized_end=700,
 )
 
 
@@ -346,8 +360,8 @@ _ABORTREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=621,
-  serialized_end=655,
+  serialized_start=702,
+  serialized_end=736,
 )
 
 
@@ -377,14 +391,14 @@ _ABORTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=657,
-  serialized_end=687,
+  serialized_start=738,
+  serialized_end=768,
 )
 
 _TERMINALSTATERESPONSE_ACCOUNT.containing_type = _TERMINALSTATERESPONSE
 _TERMINALSTATERESPONSE_ORDER.containing_type = _TERMINALSTATERESPONSE
 _TERMINALSTATERESPONSE.fields_by_name['Accounts'].message_type = _TERMINALSTATERESPONSE_ACCOUNT
-_TERMINALSTATERESPONSE.fields_by_name['OrderList'].message_type = _TERMINALSTATERESPONSE_ORDER
+_TERMINALSTATERESPONSE.fields_by_name['PendingOrders'].message_type = _TERMINALSTATERESPONSE_ORDER
 DESCRIPTOR.message_types_by_name['TerminalStateRequest'] = _TERMINALSTATEREQUEST
 DESCRIPTOR.message_types_by_name['TerminalStateResponse'] = _TERMINALSTATERESPONSE
 DESCRIPTOR.message_types_by_name['TerminalBuyRequest'] = _TERMINALBUYREQUEST
@@ -477,8 +491,8 @@ _TERMINALBACKEND = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=690,
-  serialized_end=1214,
+  serialized_start=771,
+  serialized_end=1295,
   methods=[
   _descriptor.MethodDescriptor(
     name='GetState',
