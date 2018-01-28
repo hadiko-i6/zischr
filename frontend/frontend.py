@@ -144,6 +144,7 @@ class i6MainWindow(QMainWindow):
             request = main_pb2.TerminalStateRequest()
             request.TerminalID = self.terminalId
             self.state = self.backendStub.GetState(request)
+            self.setStatusbarError(self.state.LastScanError, False)
         except Exception as e:
             print(e)
             raise
