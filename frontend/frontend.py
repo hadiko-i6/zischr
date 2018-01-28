@@ -43,6 +43,11 @@ class i6CashInWidget(QWidget):
             self.amount = 0
             self.ui.AmountLabel.setText("%.2f" % (self.amount / 100))
 
+        def negate():
+            self.amount = -self.amount
+            self.inputBuf = str(self.amount)
+            self.ui.AmountLabel.setText("%.2f" % (self.amount / 100))
+
         self.doneCB = None  # Must be set on init
 
         self.ui.num0.clicked.connect(lambda x: entry("0"))
@@ -58,6 +63,7 @@ class i6CashInWidget(QWidget):
         self.ui.Clear.clicked.connect(clear)
         self.ui.Ok.clicked.connect(lambda x: self.doneCB(self.amount))
         self.ui.Cancel.clicked.connect(lambda x: self.doneCB(None))
+        self.ui.Negate.clicked.connect(negate)
 
 class i6ConfirmWidget(QWidget):
     def __init__(self, name, *args, **kwargs):

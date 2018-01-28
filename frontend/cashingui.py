@@ -69,6 +69,9 @@ class Ui_Form(object):
         self.Clear = QtWidgets.QPushButton(self.widget)
         self.Clear.setObjectName("Clear")
         self.gridLayout.addWidget(self.Clear, 0, 2, 1, 2)
+        self.Negate = QtWidgets.QPushButton(self.widget)
+        self.Negate.setObjectName("Negate")
+        self.gridLayout.addWidget(self.Negate, 0, 1, 1, 1)
         self.gridLayout_2.addWidget(self.widget, 2, 1, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.gridLayout_2.addItem(spacerItem1, 4, 1, 1, 1)
@@ -107,7 +110,7 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Form"))
-        self.Ok.setText(_translate("Form", "Ok"))
+        self.Ok.setText(_translate("Form", "OK"))
         self.Cancel.setText(_translate("Form", "Cancel"))
         self.num9.setText(_translate("Form", "9"))
         self.num2.setText(_translate("Form", "2"))
@@ -120,6 +123,7 @@ class Ui_Form(object):
         self.num5.setText(_translate("Form", "5"))
         self.num3.setText(_translate("Form", "3"))
         self.Clear.setText(_translate("Form", "Clear"))
+        self.Negate.setText(_translate("Form", "¬"))
         self.label.setText(_translate("Form", "€"))
         self.AmountLabel.setText(_translate("Form", "0.00"))
 
