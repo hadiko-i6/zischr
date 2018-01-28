@@ -54,6 +54,10 @@ func (m Money) Add(a Money) Money {
 	return Money{newCents}
 }
 
+func (m Money) Negate() Money {
+	return NewMoney(-m.cents)
+}
+
 type Transaction struct {
 	Date time.Time
 	Description string

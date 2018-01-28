@@ -86,7 +86,9 @@ func (b *Backend) GetState(ctx context.Context, req *rpc.TerminalStateRequest) (
 	for i, p := range ts.PendingTransactions {
 		pendingTotal.Add(p.Amount)
 		res.PendingOrders[i] = &rpc.TerminalStateResponse_Order{
-			p.Description, p.Amount.Cents(), p.NeedsReview,
+			p.Description,
+			p.Amount.Negate().Cents(), // price is the negative tx amount
+			p.NeedsReview,
 		}
 	}
 	res.PendingOrdersTotal = pendingTotal.Cents()
