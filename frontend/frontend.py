@@ -130,6 +130,8 @@ class i6MainWindow(QMainWindow):
             self.updateOrdersList()
             self.updateAccountsList()
 
+            self.prevUUID = self.state.UUID
+
     def pollState(self):
         try:
             request = main_pb2.TerminalStateRequest()
@@ -272,7 +274,7 @@ class i6MainWindow(QMainWindow):
             request = main_pb2.TerminalBuyRequest()
             request.TerminalID = self.terminalId
             request.AccountID = self.confirmWidget.userID
-            #request.UUID = self.state.UUID
+            request.UUID = self.state.UUID
             try:
                 pass
                 response = self.backendStub.Buy(request)
