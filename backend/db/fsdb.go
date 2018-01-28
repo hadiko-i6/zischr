@@ -25,9 +25,16 @@ type FSDB struct {
 	lock         sync.RWMutex
 	productsByID map[string]*Product
 	accountsByID map[string]*Account
+
+	postChangeHook func()
 }
 
 
+func (d *FSDB) SetPostChangeHook(hook func()) {
+	d.lock.Lock()
+	defer d.lock.Unlock()
+	d.postChangeHook = hook
+}
 
 func (d *FSDB) deriveProduct(productID string) (*Product, error) {
 	d.lock.Lock()
@@ -136,6 +143,18 @@ func (d *FSDB) atomicallyReplaceFile(filePath, newPath, bakPath string) (err err
 		// return error anyways since otherwise the next attempt is inconsistent
 		return DBFSError
 	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("discarding panic by postChangeHook: %s", r)
+		}
+	}()
+	if d.postChangeHook != nil {
+		log.Println("running postChangeHook")
+		d.postChangeHook()
+		log.Println("finished running postChangeHook")
+	}
+
 
 	return nil
 }
