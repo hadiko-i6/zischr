@@ -2,11 +2,12 @@
 
 import sys
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QTableWidgetItem, QHeaderView, QTableWidget, QSpacerItem, QSizePolicy
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QTableWidgetItem, QHeaderView, QTableWidget, QSpacerItem, QSizePolicy, QWidget
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QResizeEvent
 
 from frontendgui import Ui_MainWindow
+from cashingui import Ui_Form
 import math
 
 import grpc
@@ -17,24 +18,46 @@ import main_pb2_grpc
 def customexcepthook(type, value, traceback):
     print(traceback.print_exc(), file=sys.stderr)
     sys.exit(1)
-#sys.excepthook = customexcepthook
+sys.excepthook = customexcepthook
 
 
-class ProgramState():
-    class orderEntry:
-        def __init__(self):
-            self.DisplayName = "N/A"
-            self.UnitPrice = 0.0
+class i6CashInWidget(QWidget):
+    def __init__(self, *args, **kwargs):
+        super(i6CashInWidget, self).__init__(*args, **kwargs)
 
-    class accountEntry:
-        def __init__(self):
-            self.ID = ""
-            self.DisplayName = "Max Mustermann"
-            self.Balance = 0.0
+        self.ui = Ui_Form()
+        self.ui.setupUi(self)
 
-    def __init__(self):
-        self.OrderList = []
-        self.Accounts = []
+        self.inputBuf = ""
+        self.amount = 0
+        self.ui.AmountLabel.setText("%.2f" % (self.amount / 100))
+
+        def entry(a):
+            self.inputBuf += a
+            self.amount = int(self.inputBuf)
+            self.ui.AmountLabel.setText("%.2f" % (self.amount / 100))
+
+        def clear():
+            self.inputBuf = ""
+            self.amount = 0
+            self.ui.AmountLabel.setText("%.2f" % (self.amount / 100))
+
+        self.doneCB = None  # Must be set on init
+
+        self.ui.num0.clicked.connect(lambda x: entry("0"))
+        self.ui.num1.clicked.connect(lambda x: entry("1"))
+        self.ui.num2.clicked.connect(lambda x: entry("2"))
+        self.ui.num3.clicked.connect(lambda x: entry("3"))
+        self.ui.num4.clicked.connect(lambda x: entry("4"))
+        self.ui.num5.clicked.connect(lambda x: entry("5"))
+        self.ui.num6.clicked.connect(lambda x: entry("6"))
+        self.ui.num7.clicked.connect(lambda x: entry("7"))
+        self.ui.num8.clicked.connect(lambda x: entry("8"))
+        self.ui.num9.clicked.connect(lambda x: entry("9"))
+        self.ui.Clear.clicked.connect(clear)
+        self.ui.Ok.clicked.connect(lambda x: self.doneCB(self.amount))
+        self.ui.Cancel.clicked.connect(lambda x: self.doneCB(None))
+
 
 class i6MainWindow(QMainWindow):
     def __init__(self, terminalId, *args, **kwargs):
@@ -53,6 +76,7 @@ class i6MainWindow(QMainWindow):
         self.ui.accountsList.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
 
         self.state = main_pb2.TerminalStateResponse()
+        self.sortedAccounts = []
 
         self.channel = grpc.insecure_channel('localhost:8080')  # TODO: set as arg
         self.backendStub = main_pb2_grpc.TerminalBackendStub(self.channel)
@@ -67,16 +91,25 @@ class i6MainWindow(QMainWindow):
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.timerCB)
-        self.timer.start(100)
+        self.timer.start(1000)
 
         self.ui.cancelButton.clicked.connect(self.CancelButtonPressed)
+
+        self.mainWidget = self.ui.mainWidgetStack.widget(0)
+        self.cashinOpen = False
+        self.cashinWidget = None
 
     def timerCB(self, *args):
         self.pollState()
 
-        self.updateButtons()
-        self.updateOrdersList()
-        self.updateAccountsList()
+        self.checkCashin()
+
+        if not self.cashinOpen:
+            self.sortAccounts()
+
+            self.updateButtons()
+            self.updateOrdersList()
+            self.updateAccountsList()
 
     def pollState(self):
         try:
@@ -87,6 +120,27 @@ class i6MainWindow(QMainWindow):
             print(e)
             raise
 
+    def sortAccounts(self):
+        accounts = list(self.state.Accounts)
+        self.sortedAccounts = sorted(accounts, key=lambda x: x.ID)
+
+    def checkCashin(self):
+        if not self.cashinOpen:
+            for order in list(self.state.PendingOrders):
+                if(order.DisplayName == "EAN:1337"):    # MAGIC TOKEN #TODO: Change to actual magic token
+                    self.cashinWidget = i6CashInWidget()
+                    self.cashinWidget.doneCB = self.cashinDone
+                    self.ui.mainWidgetStack.insertWidget(1, self.cashinWidget)
+                    self.ui.mainWidgetStack.setCurrentWidget(self.cashinWidget)
+                    self.cashinOpen = True
+
+    def cashinDone(self, amount):
+        self.cashinOpen = False
+        self.ui.mainWidgetStack.setCurrentWidget(self.mainWidget)
+        self.ui.mainWidgetStack.removeWidget(self.cashinWidget)
+        del self.cashinWidget
+
+        # TODO: Make RPC call for amount if amount is not None
 
     def updateButtons(self):
         if self.lastAccounts == list(self.state.Accounts):    # Current button state is equal to previous, no need to update
@@ -101,8 +155,8 @@ class i6MainWindow(QMainWindow):
 
         self.buttons = []
 
-        for i in range(len(self.state.Accounts)):
-            account = self.state.Accounts[i]
+        for i in range(len(self.sortedAccounts)):
+            account = self.sortedAccounts[i]
             newButton = QPushButton(account.DisplayName)
             newButton.userid = account.ID   # Append backend userid to button so we know who to bill if button is pressed
             newButton.setStyleSheet("color: rgb(238, 238, 236);")
@@ -116,7 +170,7 @@ class i6MainWindow(QMainWindow):
         self.spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.ui.buttonContainer.widget().layout().addItem(self.spacer, math.floor(i / 2) + 1, 0)
 
-        self.lastAccounts = list(self.state.Accounts)
+        self.lastAccounts = list(self.sortedAccounts)
 
     def updateOrdersList(self):
         self.ui.currentOrderList.clear()
@@ -141,17 +195,17 @@ class i6MainWindow(QMainWindow):
         self.ui.accountsList.clear()
 
         self.ui.accountsList.setColumnCount(4)
-        self.ui.accountsList.setRowCount(math.ceil(len(self.state.Accounts)/2))
+        self.ui.accountsList.setRowCount(math.ceil(len(self.sortedAccounts)/2))
 
         self.ui.accountsList.setHorizontalHeaderLabels(["Name", "Balance"]*2)
 
-        for i in range(len(self.state.Accounts)):
+        for i in range(len(self.sortedAccounts)):
             if i % 2 == 0:
                 columnoffset = 0
             else:
                 columnoffset = 2
 
-            account = self.state.Accounts[i]
+            account = self.sortedAccounts[i]
             nameWidget = QTableWidgetItem(account.DisplayName)
             self.ui.accountsList.setItem(math.floor(i / 2), 0 + columnoffset, nameWidget)
 
