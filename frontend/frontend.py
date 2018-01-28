@@ -16,10 +16,11 @@ import main_pb2
 import main_pb2_grpc
 
 
-def customexcepthook(type, value, traceback):
-    print(traceback.print_exc(), file=sys.stderr)
-    sys.exit(1)
-sys.excepthook = customexcepthook
+# Uncomment when developing to show exceptions :)
+#def customexcepthook(type, value, traceback):
+#    print(traceback.print_exc(), file=sys.stderr)
+#    sys.exit(1)
+#sys.excepthook = customexcepthook
 
 
 class i6CashInWidget(QWidget):
@@ -274,8 +275,6 @@ class i6MainWindow(QMainWindow):
         self.ui.mainWidgetStack.setCurrentWidget(self.confirmWidget)
         self.confirmOpen = True
 
-        # TODO: Display returned error as modal dialog?
-
     def NameButtonPressedConfirmationCB(self, ack):
         if ack:
             request = main_pb2.TerminalBuyRequest()
@@ -337,14 +336,18 @@ import argparse
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('--id', help='foo help', default="Foo")
-    parser.add_argument('--backendurl', help='foo help', default="localhost:8080")
+    parser.add_argument('--id', help='Terminal ID', default="Foo")
+    parser.add_argument('--backendurl', help='URL to backend', default="localhost:8080")
+    parser.add_argument('--windowed', help='Fullscreen mode', default=True, action="store_true")
 
     args = parser.parse_args()
 
     app = QApplication(sys.argv)
     window = i6MainWindow(args.id, args.backendurl)
 
-    window.show()
+    if not args.windowed:
+        window.showFullScreen()
+    else:
+        window.show()
     window.scaleTables()
     sys.exit(app.exec_())
