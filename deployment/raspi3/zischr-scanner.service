@@ -1,0 +1,12 @@
+[Unit]
+Description=zischr scanner with TerminalID=pi
+PartOf=zischr.target
+
+[Service]
+ExecStart=/zischr/scanner.py --bin /zischr/backend --id pi
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=zischr.target
+

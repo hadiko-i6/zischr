@@ -1,0 +1,11 @@
+[Unit]
+Description=zischr.backend
+PartOf=zischr.target
+After=dev-tty7.device systemd-user-sessions.service
+
+[Service]
+ExecStart=/zischr/backend server --listen localhost:8080 --dbdir /root/zischrdb --post-store-hook /root/zischrdb.hook.sh
+
+[Install]
+WantedBy=zischr.target
+

@@ -1,0 +1,13 @@
+[Unit]
+Description=zischr frontend with TerminalID=pi
+PartOf=zischr.target
+After=dev-tty7.device systemd-user-sessions.service
+
+[Service]
+ExecStart=/usr/bin/xinit /zischr/frontend.sh --winwidth=1024 --winheight=768 --id pi -- -nocursor
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=zischr.target
+

@@ -1,0 +1,4 @@
+[Unit]
+Description=zischr meta service
+Requires=graphical.target network.target multi-user.target
+
