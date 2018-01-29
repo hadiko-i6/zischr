@@ -17,10 +17,10 @@ import main_pb2_grpc
 
 
 # Uncomment when developing to show exceptions :)
-def customexcepthook(type, value, traceback):
-    print(traceback.print_exc(), file=sys.stderr)
-    sys.exit(1)
-sys.excepthook = customexcepthook
+#def customexcepthook(type, value, traceback):
+#    print(traceback.print_exc(), file=sys.stderr)
+#    sys.exit(1)
+#sys.excepthook = customexcepthook
 
 
 class i6CashInWidget(QWidget):
