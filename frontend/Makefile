@@ -1,4 +1,5 @@
-all: frontendgui.py cashingui.py confirmgui.py
+.PHONY: codegen
+codegen: frontendgui.py cashingui.py confirmgui.py
 
 frontendgui.py: frontend.ui
 	pyuic5 frontend.ui -o frontendgui.py
@@ -9,3 +10,4 @@ cashingui.py: cashin.ui
 
 confirmgui.py: confirm.ui
 	pyuic5 confirm.ui -o confirmgui.py
+
