@@ -4,7 +4,7 @@ import sys
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QTableWidgetItem, QHeaderView, QTableWidget, QSpacerItem, QSizePolicy, QWidget
 from PyQt5.QtCore import QTimer, Qt
-from PyQt5.QtGui import QResizeEvent
+from PyQt5.QtGui import QResizeEvent, QBrush, QColor
 
 from frontendgui import Ui_MainWindow
 import cashingui
@@ -17,10 +17,10 @@ import main_pb2_grpc
 
 
 # Uncomment when developing to show exceptions :)
-#def customexcepthook(type, value, traceback):
-#    print(traceback.print_exc(), file=sys.stderr)
-#    sys.exit(1)
-#sys.excepthook = customexcepthook
+def customexcepthook(type, value, traceback):
+    print(traceback.print_exc(), file=sys.stderr)
+    sys.exit(1)
+sys.excepthook = customexcepthook
 
 
 class i6CashInWidget(QWidget):
@@ -82,8 +82,9 @@ class i6ConfirmWidget(QWidget):
 
 
 class i6MainWindow(QMainWindow):
-    def __init__(self, terminalId, channelUrl, *args, **kwargs):
+    def __init__(self, terminalId, channelUrl, biminame, *args, **kwargs):
         super(i6MainWindow, self).__init__(*args, **kwargs)
+        self.biminame = biminame
 
         self.terminalId = terminalId
 
@@ -228,10 +229,18 @@ class i6MainWindow(QMainWindow):
 
         for i in range(len(self.state.PendingOrders)):
             order = self.state.PendingOrders[i]
-            nameWidget = QTableWidgetItem(order.DisplayName)
+            if order.NeedsReview:
+                nameWidget = QTableWidgetItem("Talk to %s: %s" % (self.biminame, order.DisplayName))
+                nameWidget.setBackground(QBrush(QColor(120, 84, 0)))
+            else:
+                nameWidget = QTableWidgetItem(order.DisplayName)
             self.ui.currentOrderList.setItem(i, 0, nameWidget)
 
-            priceWdiget = QTableWidgetItem("%.2f€" % (order.Price / 100))
+            if order.NeedsReview:
+                priceWdiget = QTableWidgetItem("?.??€")
+                priceWdiget.setBackground(QBrush(QColor(120, 84, 0)))
+            else:
+                priceWdiget = QTableWidgetItem("%.2f€" % (order.Price / 100))
             priceWdiget.setTextAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             self.ui.currentOrderList.setItem(i, 1, priceWdiget)
 
@@ -340,11 +349,12 @@ if __name__ == "__main__":
     parser.add_argument('--id', help='Terminal ID', default="Foo")
     parser.add_argument('--backendurl', help='URL to backend', default="localhost:8080")
     parser.add_argument('--windowed', help='Fullscreen mode', default=True, action="store_true")
+    parser.add_argument('--bimi', help='Name of the guy administrating everything', default="Bimi")
 
     args = parser.parse_args()
 
     app = QApplication(sys.argv)
-    window = i6MainWindow(args.id, args.backendurl)
+    window = i6MainWindow(args.id, args.backendurl, args.bimi)
 
     if not args.windowed:
         window.showFullScreen()
