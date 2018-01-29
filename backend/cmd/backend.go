@@ -8,8 +8,8 @@
 package cmd
 
 import (
-	"github.com/hadiko-i6/i6getraenkeabrechnungssystem3000/backend/db"
-	"github.com/hadiko-i6/i6getraenkeabrechnungssystem3000/backend/rpc"
+	"github.com/hadiko-i6/zischr/backend/db"
+	"github.com/hadiko-i6/zischr/backend/rpc"
 	"log"
 	"golang.org/x/net/context"
 	"errors"

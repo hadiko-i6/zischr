@@ -10,7 +10,7 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"log"
-	"github.com/hadiko-i6/i6getraenkeabrechnungssystem3000/backend/rpc"
+	"github.com/hadiko-i6/zischr/backend/rpc"
 	"google.golang.org/grpc"
 	"context"
 	"github.com/kr/pretty"

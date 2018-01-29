@@ -19,7 +19,7 @@ var argsGlobal struct {
 
 var RootCmd = &cobra.Command{
 	Use:   "backend",
-	Short: "Backend of i6getraenkeabrechnungssystem3000",
+	Short: "zischr backend",
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

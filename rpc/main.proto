@@ -1,5 +1,5 @@
 syntax = "proto3";
-package i6getraenkeabrechnungssystem3000.rpc;
+package zischr.rpc;
 option go_package = "rpc";
 
 service TerminalBackend {

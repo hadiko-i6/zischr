@@ -6,7 +6,7 @@
 
 package main
 
-import "github.com/hadiko-i6/i6getraenkeabrechnungssystem3000/backend/cmd"
+import "github.com/hadiko-i6/zischr/backend/cmd"
 
 func main() {
 	cmd.Execute()

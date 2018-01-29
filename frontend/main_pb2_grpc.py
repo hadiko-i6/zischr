@@ -15,27 +15,27 @@ class TerminalBackendStub(object):
       channel: A grpc.Channel.
     """
     self.GetState = channel.unary_unary(
-        '/i6getraenkeabrechnungssystem3000.rpc.TerminalBackend/GetState',
+        '/zischr.rpc.TerminalBackend/GetState',
         request_serializer=main__pb2.TerminalStateRequest.SerializeToString,
         response_deserializer=main__pb2.TerminalStateResponse.FromString,
         )
     self.Buy = channel.unary_unary(
-        '/i6getraenkeabrechnungssystem3000.rpc.TerminalBackend/Buy',
+        '/zischr.rpc.TerminalBackend/Buy',
         request_serializer=main__pb2.TerminalBuyRequest.SerializeToString,
         response_deserializer=main__pb2.TerminalBuyResponse.FromString,
         )
     self.AddDepositOrder = channel.unary_unary(
-        '/i6getraenkeabrechnungssystem3000.rpc.TerminalBackend/AddDepositOrder',
+        '/zischr.rpc.TerminalBackend/AddDepositOrder',
         request_serializer=main__pb2.TerminalAddDepositOrderRequest.SerializeToString,
         response_deserializer=main__pb2.TerminalAddDepositOrderResponse.FromString,
         )
     self.Scan = channel.unary_unary(
-        '/i6getraenkeabrechnungssystem3000.rpc.TerminalBackend/Scan',
+        '/zischr.rpc.TerminalBackend/Scan',
         request_serializer=main__pb2.TerminalScanRequest.SerializeToString,
         response_deserializer=main__pb2.TerminalScanResponse.FromString,
         )
     self.Abort = channel.unary_unary(
-        '/i6getraenkeabrechnungssystem3000.rpc.TerminalBackend/Abort',
+        '/zischr.rpc.TerminalBackend/Abort',
         request_serializer=main__pb2.AbortRequest.SerializeToString,
         response_deserializer=main__pb2.AbortResponse.FromString,
         )
@@ -110,5 +110,5 @@ def add_TerminalBackendServicer_to_server(servicer, server):
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
-      'i6getraenkeabrechnungssystem3000.rpc.TerminalBackend', rpc_method_handlers)
+      'zischr.rpc.TerminalBackend', rpc_method_handlers)
   server.add_generic_rpc_handlers((generic_handler,))

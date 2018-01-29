@@ -3,7 +3,7 @@ package db_test
 import (
 	"testing"
 	"github.com/stretchr/testify/assert"
-	"github.com/hadiko-i6/i6getraenkeabrechnungssystem3000/backend/db"
+	"github.com/hadiko-i6/zischr/backend/db"
 	"encoding/json"
 	"fmt"
 	"math"

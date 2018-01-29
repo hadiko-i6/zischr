@@ -7,12 +7,12 @@
 package cmd
 
 import (
-	"github.com/hadiko-i6/i6getraenkeabrechnungssystem3000/backend/rpc"
+	"github.com/hadiko-i6/zischr/backend/rpc"
 	"log"
 	"github.com/spf13/cobra"
 	"net"
 	"google.golang.org/grpc"
-	"github.com/hadiko-i6/i6getraenkeabrechnungssystem3000/backend/db"
+	"github.com/hadiko-i6/zischr/backend/db"
 	"os/exec"
 	"bytes"
 	"fmt"

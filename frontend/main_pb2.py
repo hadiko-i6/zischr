@@ -17,9 +17,9 @@ _sym_db = _symbol_database.Default()
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='main.proto',
-  package='i6getraenkeabrechnungssystem3000.rpc',
+  package='zischr.rpc',
   syntax='proto3',
-  serialized_pb=_b('\n\nmain.proto\x12$i6getraenkeabrechnungssystem3000.rpc\"*\n\x14TerminalStateRequest\x12\x12\n\nTerminalID\x18\x01 \x01(\t\"\xb5\x03\n\x15TerminalStateResponse\x12\x0c\n\x04UUID\x18\x01 \x01(\t\x12U\n\x08\x41\x63\x63ounts\x18\x02 \x03(\x0b\x32\x43.i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.Account\x12X\n\rPendingOrders\x18\x03 \x03(\x0b\x32\x41.i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.Order\x12\x1a\n\x12PendingOrdersTotal\x18\x04 \x01(\x11\x12\x1a\n\x12\x43\x61shInScanReceived\x18\x05 \x01(\x08\x12\x15\n\rLastScanError\x18\x06 \x01(\t\x1aL\n\x07\x41\x63\x63ount\x12\n\n\x02ID\x18\x01 \x01(\t\x12\x13\n\x0b\x44isplayName\x18\x02 \x01(\t\x12\x0f\n\x07\x42\x61lance\x18\x03 \x01(\x11\x12\x0f\n\x07SortKey\x18\x04 \x01(\t\x1a@\n\x05Order\x12\x13\n\x0b\x44isplayName\x18\x01 \x01(\t\x12\r\n\x05Price\x18\x02 \x01(\x11\x12\x13\n\x0bNeedsReview\x18\x03 \x01(\x08\"I\n\x12TerminalBuyRequest\x12\x12\n\nTerminalID\x18\x01 \x01(\t\x12\x11\n\tAccountID\x18\x02 \x01(\t\x12\x0c\n\x04UUID\x18\x03 \x01(\t\"$\n\x13TerminalBuyResponse\x12\r\n\x05\x45rror\x18\x01 \x01(\t\"J\n\x1eTerminalAddDepositOrderRequest\x12\x12\n\nTerminalID\x18\x01 \x01(\t\x12\x14\n\x0c\x43\x61shInAmount\x18\x02 \x01(\x11\"0\n\x1fTerminalAddDepositOrderResponse\x12\r\n\x05\x45rror\x18\x01 \x01(\t\"<\n\x13TerminalScanRequest\x12\x12\n\nTerminalID\x18\x01 \x01(\t\x12\x11\n\tProductID\x18\x02 \x01(\t\"%\n\x14TerminalScanResponse\x12\r\n\x05\x45rror\x18\x01 \x01(\t\"\"\n\x0c\x41\x62ortRequest\x12\x12\n\nTerminalID\x18\x01 \x01(\t\"\x1e\n\rAbortResponse\x12\r\n\x05\x45rror\x18\x01 \x01(\t2\xaf\x05\n\x0fTerminalBackend\x12\x85\x01\n\x08GetState\x12:.i6getraenkeabrechnungssystem3000.rpc.TerminalStateRequest\x1a;.i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse\"\x00\x12|\n\x03\x42uy\x12\x38.i6getraenkeabrechnungssystem3000.rpc.TerminalBuyRequest\x1a\x39.i6getraenkeabrechnungssystem3000.rpc.TerminalBuyResponse\"\x00\x12\xa0\x01\n\x0f\x41\x64\x64\x44\x65positOrder\x12\x44.i6getraenkeabrechnungssystem3000.rpc.TerminalAddDepositOrderRequest\x1a\x45.i6getraenkeabrechnungssystem3000.rpc.TerminalAddDepositOrderResponse\"\x00\x12\x7f\n\x04Scan\x12\x39.i6getraenkeabrechnungssystem3000.rpc.TerminalScanRequest\x1a:.i6getraenkeabrechnungssystem3000.rpc.TerminalScanResponse\"\x00\x12r\n\x05\x41\x62ort\x12\x32.i6getraenkeabrechnungssystem3000.rpc.AbortRequest\x1a\x33.i6getraenkeabrechnungssystem3000.rpc.AbortResponse\"\x00\x42\x05Z\x03rpcb\x06proto3')
+  serialized_pb=_b('\n\nmain.proto\x12\nzischr.rpc\"*\n\x14TerminalStateRequest\x12\x12\n\nTerminalID\x18\x01 \x01(\t\"\x81\x03\n\x15TerminalStateResponse\x12\x0c\n\x04UUID\x18\x01 \x01(\t\x12;\n\x08\x41\x63\x63ounts\x18\x02 \x03(\x0b\x32).zischr.rpc.TerminalStateResponse.Account\x12>\n\rPendingOrders\x18\x03 \x03(\x0b\x32\'.zischr.rpc.TerminalStateResponse.Order\x12\x1a\n\x12PendingOrdersTotal\x18\x04 \x01(\x11\x12\x1a\n\x12\x43\x61shInScanReceived\x18\x05 \x01(\x08\x12\x15\n\rLastScanError\x18\x06 \x01(\t\x1aL\n\x07\x41\x63\x63ount\x12\n\n\x02ID\x18\x01 \x01(\t\x12\x13\n\x0b\x44isplayName\x18\x02 \x01(\t\x12\x0f\n\x07\x42\x61lance\x18\x03 \x01(\x11\x12\x0f\n\x07SortKey\x18\x04 \x01(\t\x1a@\n\x05Order\x12\x13\n\x0b\x44isplayName\x18\x01 \x01(\t\x12\r\n\x05Price\x18\x02 \x01(\x11\x12\x13\n\x0bNeedsReview\x18\x03 \x01(\x08\"I\n\x12TerminalBuyRequest\x12\x12\n\nTerminalID\x18\x01 \x01(\t\x12\x11\n\tAccountID\x18\x02 \x01(\t\x12\x0c\n\x04UUID\x18\x03 \x01(\t\"$\n\x13TerminalBuyResponse\x12\r\n\x05\x45rror\x18\x01 \x01(\t\"J\n\x1eTerminalAddDepositOrderRequest\x12\x12\n\nTerminalID\x18\x01 \x01(\t\x12\x14\n\x0c\x43\x61shInAmount\x18\x02 \x01(\x11\"0\n\x1fTerminalAddDepositOrderResponse\x12\r\n\x05\x45rror\x18\x01 \x01(\t\"<\n\x13TerminalScanRequest\x12\x12\n\nTerminalID\x18\x01 \x01(\t\x12\x11\n\tProductID\x18\x02 \x01(\t\"%\n\x14TerminalScanResponse\x12\r\n\x05\x45rror\x18\x01 \x01(\t\"\"\n\x0c\x41\x62ortRequest\x12\x12\n\nTerminalID\x18\x01 \x01(\t\"\x1e\n\rAbortResponse\x12\r\n\x05\x45rror\x18\x01 \x01(\t2\xa9\x03\n\x0fTerminalBackend\x12Q\n\x08GetState\x12 .zischr.rpc.TerminalStateRequest\x1a!.zischr.rpc.TerminalStateResponse\"\x00\x12H\n\x03\x42uy\x12\x1e.zischr.rpc.TerminalBuyRequest\x1a\x1f.zischr.rpc.TerminalBuyResponse\"\x00\x12l\n\x0f\x41\x64\x64\x44\x65positOrder\x12*.zischr.rpc.TerminalAddDepositOrderRequest\x1a+.zischr.rpc.TerminalAddDepositOrderResponse\"\x00\x12K\n\x04Scan\x12\x1f.zischr.rpc.TerminalScanRequest\x1a .zischr.rpc.TerminalScanResponse\"\x00\x12>\n\x05\x41\x62ort\x12\x18.zischr.rpc.AbortRequest\x1a\x19.zischr.rpc.AbortResponse\"\x00\x42\x05Z\x03rpcb\x06proto3')
 )
 
 
@@ -27,13 +27,13 @@ DESCRIPTOR = _descriptor.FileDescriptor(
 
 _TERMINALSTATEREQUEST = _descriptor.Descriptor(
   name='TerminalStateRequest',
-  full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateRequest',
+  full_name='zischr.rpc.TerminalStateRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='TerminalID', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateRequest.TerminalID', index=0,
+      name='TerminalID', full_name='zischr.rpc.TerminalStateRequest.TerminalID', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -51,41 +51,41 @@ _TERMINALSTATEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=52,
-  serialized_end=94,
+  serialized_start=26,
+  serialized_end=68,
 )
 
 
 _TERMINALSTATERESPONSE_ACCOUNT = _descriptor.Descriptor(
   name='Account',
-  full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.Account',
+  full_name='zischr.rpc.TerminalStateResponse.Account',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='ID', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.Account.ID', index=0,
+      name='ID', full_name='zischr.rpc.TerminalStateResponse.Account.ID', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='DisplayName', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.Account.DisplayName', index=1,
+      name='DisplayName', full_name='zischr.rpc.TerminalStateResponse.Account.DisplayName', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='Balance', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.Account.Balance', index=2,
+      name='Balance', full_name='zischr.rpc.TerminalStateResponse.Account.Balance', index=2,
       number=3, type=17, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='SortKey', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.Account.SortKey', index=3,
+      name='SortKey', full_name='zischr.rpc.TerminalStateResponse.Account.SortKey', index=3,
       number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -103,33 +103,33 @@ _TERMINALSTATERESPONSE_ACCOUNT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=392,
-  serialized_end=468,
+  serialized_start=314,
+  serialized_end=390,
 )
 
 _TERMINALSTATERESPONSE_ORDER = _descriptor.Descriptor(
   name='Order',
-  full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.Order',
+  full_name='zischr.rpc.TerminalStateResponse.Order',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='DisplayName', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.Order.DisplayName', index=0,
+      name='DisplayName', full_name='zischr.rpc.TerminalStateResponse.Order.DisplayName', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='Price', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.Order.Price', index=1,
+      name='Price', full_name='zischr.rpc.TerminalStateResponse.Order.Price', index=1,
       number=2, type=17, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='NeedsReview', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.Order.NeedsReview', index=2,
+      name='NeedsReview', full_name='zischr.rpc.TerminalStateResponse.Order.NeedsReview', index=2,
       number=3, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
@@ -147,54 +147,54 @@ _TERMINALSTATERESPONSE_ORDER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=470,
-  serialized_end=534,
+  serialized_start=392,
+  serialized_end=456,
 )
 
 _TERMINALSTATERESPONSE = _descriptor.Descriptor(
   name='TerminalStateResponse',
-  full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse',
+  full_name='zischr.rpc.TerminalStateResponse',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='UUID', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.UUID', index=0,
+      name='UUID', full_name='zischr.rpc.TerminalStateResponse.UUID', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='Accounts', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.Accounts', index=1,
+      name='Accounts', full_name='zischr.rpc.TerminalStateResponse.Accounts', index=1,
       number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='PendingOrders', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.PendingOrders', index=2,
+      name='PendingOrders', full_name='zischr.rpc.TerminalStateResponse.PendingOrders', index=2,
       number=3, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='PendingOrdersTotal', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.PendingOrdersTotal', index=3,
+      name='PendingOrdersTotal', full_name='zischr.rpc.TerminalStateResponse.PendingOrdersTotal', index=3,
       number=4, type=17, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='CashInScanReceived', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.CashInScanReceived', index=4,
+      name='CashInScanReceived', full_name='zischr.rpc.TerminalStateResponse.CashInScanReceived', index=4,
       number=5, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='LastScanError', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.LastScanError', index=5,
+      name='LastScanError', full_name='zischr.rpc.TerminalStateResponse.LastScanError', index=5,
       number=6, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -212,34 +212,34 @@ _TERMINALSTATERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=97,
-  serialized_end=534,
+  serialized_start=71,
+  serialized_end=456,
 )
 
 
 _TERMINALBUYREQUEST = _descriptor.Descriptor(
   name='TerminalBuyRequest',
-  full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalBuyRequest',
+  full_name='zischr.rpc.TerminalBuyRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='TerminalID', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalBuyRequest.TerminalID', index=0,
+      name='TerminalID', full_name='zischr.rpc.TerminalBuyRequest.TerminalID', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='AccountID', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalBuyRequest.AccountID', index=1,
+      name='AccountID', full_name='zischr.rpc.TerminalBuyRequest.AccountID', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='UUID', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalBuyRequest.UUID', index=2,
+      name='UUID', full_name='zischr.rpc.TerminalBuyRequest.UUID', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -257,20 +257,20 @@ _TERMINALBUYREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=536,
-  serialized_end=609,
+  serialized_start=458,
+  serialized_end=531,
 )
 
 
 _TERMINALBUYRESPONSE = _descriptor.Descriptor(
   name='TerminalBuyResponse',
-  full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalBuyResponse',
+  full_name='zischr.rpc.TerminalBuyResponse',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='Error', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalBuyResponse.Error', index=0,
+      name='Error', full_name='zischr.rpc.TerminalBuyResponse.Error', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -288,27 +288,27 @@ _TERMINALBUYRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=611,
-  serialized_end=647,
+  serialized_start=533,
+  serialized_end=569,
 )
 
 
 _TERMINALADDDEPOSITORDERREQUEST = _descriptor.Descriptor(
   name='TerminalAddDepositOrderRequest',
-  full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalAddDepositOrderRequest',
+  full_name='zischr.rpc.TerminalAddDepositOrderRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='TerminalID', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalAddDepositOrderRequest.TerminalID', index=0,
+      name='TerminalID', full_name='zischr.rpc.TerminalAddDepositOrderRequest.TerminalID', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='CashInAmount', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalAddDepositOrderRequest.CashInAmount', index=1,
+      name='CashInAmount', full_name='zischr.rpc.TerminalAddDepositOrderRequest.CashInAmount', index=1,
       number=2, type=17, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -326,20 +326,20 @@ _TERMINALADDDEPOSITORDERREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=649,
-  serialized_end=723,
+  serialized_start=571,
+  serialized_end=645,
 )
 
 
 _TERMINALADDDEPOSITORDERRESPONSE = _descriptor.Descriptor(
   name='TerminalAddDepositOrderResponse',
-  full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalAddDepositOrderResponse',
+  full_name='zischr.rpc.TerminalAddDepositOrderResponse',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='Error', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalAddDepositOrderResponse.Error', index=0,
+      name='Error', full_name='zischr.rpc.TerminalAddDepositOrderResponse.Error', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -357,27 +357,27 @@ _TERMINALADDDEPOSITORDERRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=725,
-  serialized_end=773,
+  serialized_start=647,
+  serialized_end=695,
 )
 
 
 _TERMINALSCANREQUEST = _descriptor.Descriptor(
   name='TerminalScanRequest',
-  full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalScanRequest',
+  full_name='zischr.rpc.TerminalScanRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='TerminalID', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalScanRequest.TerminalID', index=0,
+      name='TerminalID', full_name='zischr.rpc.TerminalScanRequest.TerminalID', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='ProductID', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalScanRequest.ProductID', index=1,
+      name='ProductID', full_name='zischr.rpc.TerminalScanRequest.ProductID', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -395,20 +395,20 @@ _TERMINALSCANREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=775,
-  serialized_end=835,
+  serialized_start=697,
+  serialized_end=757,
 )
 
 
 _TERMINALSCANRESPONSE = _descriptor.Descriptor(
   name='TerminalScanResponse',
-  full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalScanResponse',
+  full_name='zischr.rpc.TerminalScanResponse',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='Error', full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalScanResponse.Error', index=0,
+      name='Error', full_name='zischr.rpc.TerminalScanResponse.Error', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -426,20 +426,20 @@ _TERMINALSCANRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=837,
-  serialized_end=874,
+  serialized_start=759,
+  serialized_end=796,
 )
 
 
 _ABORTREQUEST = _descriptor.Descriptor(
   name='AbortRequest',
-  full_name='i6getraenkeabrechnungssystem3000.rpc.AbortRequest',
+  full_name='zischr.rpc.AbortRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='TerminalID', full_name='i6getraenkeabrechnungssystem3000.rpc.AbortRequest.TerminalID', index=0,
+      name='TerminalID', full_name='zischr.rpc.AbortRequest.TerminalID', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -457,20 +457,20 @@ _ABORTREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=876,
-  serialized_end=910,
+  serialized_start=798,
+  serialized_end=832,
 )
 
 
 _ABORTRESPONSE = _descriptor.Descriptor(
   name='AbortResponse',
-  full_name='i6getraenkeabrechnungssystem3000.rpc.AbortResponse',
+  full_name='zischr.rpc.AbortResponse',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='Error', full_name='i6getraenkeabrechnungssystem3000.rpc.AbortResponse.Error', index=0,
+      name='Error', full_name='zischr.rpc.AbortResponse.Error', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -488,8 +488,8 @@ _ABORTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=912,
-  serialized_end=942,
+  serialized_start=834,
+  serialized_end=864,
 )
 
 _TERMINALSTATERESPONSE_ACCOUNT.containing_type = _TERMINALSTATERESPONSE
@@ -511,7 +511,7 @@ _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 TerminalStateRequest = _reflection.GeneratedProtocolMessageType('TerminalStateRequest', (_message.Message,), dict(
   DESCRIPTOR = _TERMINALSTATEREQUEST,
   __module__ = 'main_pb2'
-  # @@protoc_insertion_point(class_scope:i6getraenkeabrechnungssystem3000.rpc.TerminalStateRequest)
+  # @@protoc_insertion_point(class_scope:zischr.rpc.TerminalStateRequest)
   ))
 _sym_db.RegisterMessage(TerminalStateRequest)
 
@@ -520,19 +520,19 @@ TerminalStateResponse = _reflection.GeneratedProtocolMessageType('TerminalStateR
   Account = _reflection.GeneratedProtocolMessageType('Account', (_message.Message,), dict(
     DESCRIPTOR = _TERMINALSTATERESPONSE_ACCOUNT,
     __module__ = 'main_pb2'
-    # @@protoc_insertion_point(class_scope:i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.Account)
+    # @@protoc_insertion_point(class_scope:zischr.rpc.TerminalStateResponse.Account)
     ))
   ,
 
   Order = _reflection.GeneratedProtocolMessageType('Order', (_message.Message,), dict(
     DESCRIPTOR = _TERMINALSTATERESPONSE_ORDER,
     __module__ = 'main_pb2'
-    # @@protoc_insertion_point(class_scope:i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse.Order)
+    # @@protoc_insertion_point(class_scope:zischr.rpc.TerminalStateResponse.Order)
     ))
   ,
   DESCRIPTOR = _TERMINALSTATERESPONSE,
   __module__ = 'main_pb2'
-  # @@protoc_insertion_point(class_scope:i6getraenkeabrechnungssystem3000.rpc.TerminalStateResponse)
+  # @@protoc_insertion_point(class_scope:zischr.rpc.TerminalStateResponse)
   ))
 _sym_db.RegisterMessage(TerminalStateResponse)
 _sym_db.RegisterMessage(TerminalStateResponse.Account)
@@ -541,56 +541,56 @@ _sym_db.RegisterMessage(TerminalStateResponse.Order)
 TerminalBuyRequest = _reflection.GeneratedProtocolMessageType('TerminalBuyRequest', (_message.Message,), dict(
   DESCRIPTOR = _TERMINALBUYREQUEST,
   __module__ = 'main_pb2'
-  # @@protoc_insertion_point(class_scope:i6getraenkeabrechnungssystem3000.rpc.TerminalBuyRequest)
+  # @@protoc_insertion_point(class_scope:zischr.rpc.TerminalBuyRequest)
   ))
 _sym_db.RegisterMessage(TerminalBuyRequest)
 
 TerminalBuyResponse = _reflection.GeneratedProtocolMessageType('TerminalBuyResponse', (_message.Message,), dict(
   DESCRIPTOR = _TERMINALBUYRESPONSE,
   __module__ = 'main_pb2'
-  # @@protoc_insertion_point(class_scope:i6getraenkeabrechnungssystem3000.rpc.TerminalBuyResponse)
+  # @@protoc_insertion_point(class_scope:zischr.rpc.TerminalBuyResponse)
   ))
 _sym_db.RegisterMessage(TerminalBuyResponse)
 
 TerminalAddDepositOrderRequest = _reflection.GeneratedProtocolMessageType('TerminalAddDepositOrderRequest', (_message.Message,), dict(
   DESCRIPTOR = _TERMINALADDDEPOSITORDERREQUEST,
   __module__ = 'main_pb2'
-  # @@protoc_insertion_point(class_scope:i6getraenkeabrechnungssystem3000.rpc.TerminalAddDepositOrderRequest)
+  # @@protoc_insertion_point(class_scope:zischr.rpc.TerminalAddDepositOrderRequest)
   ))
 _sym_db.RegisterMessage(TerminalAddDepositOrderRequest)
 
 TerminalAddDepositOrderResponse = _reflection.GeneratedProtocolMessageType('TerminalAddDepositOrderResponse', (_message.Message,), dict(
   DESCRIPTOR = _TERMINALADDDEPOSITORDERRESPONSE,
   __module__ = 'main_pb2'
-  # @@protoc_insertion_point(class_scope:i6getraenkeabrechnungssystem3000.rpc.TerminalAddDepositOrderResponse)
+  # @@protoc_insertion_point(class_scope:zischr.rpc.TerminalAddDepositOrderResponse)
   ))
 _sym_db.RegisterMessage(TerminalAddDepositOrderResponse)
 
 TerminalScanRequest = _reflection.GeneratedProtocolMessageType('TerminalScanRequest', (_message.Message,), dict(
   DESCRIPTOR = _TERMINALSCANREQUEST,
   __module__ = 'main_pb2'
-  # @@protoc_insertion_point(class_scope:i6getraenkeabrechnungssystem3000.rpc.TerminalScanRequest)
+  # @@protoc_insertion_point(class_scope:zischr.rpc.TerminalScanRequest)
   ))
 _sym_db.RegisterMessage(TerminalScanRequest)
 
 TerminalScanResponse = _reflection.GeneratedProtocolMessageType('TerminalScanResponse', (_message.Message,), dict(
   DESCRIPTOR = _TERMINALSCANRESPONSE,
   __module__ = 'main_pb2'
-  # @@protoc_insertion_point(class_scope:i6getraenkeabrechnungssystem3000.rpc.TerminalScanResponse)
+  # @@protoc_insertion_point(class_scope:zischr.rpc.TerminalScanResponse)
   ))
 _sym_db.RegisterMessage(TerminalScanResponse)
 
 AbortRequest = _reflection.GeneratedProtocolMessageType('AbortRequest', (_message.Message,), dict(
   DESCRIPTOR = _ABORTREQUEST,
   __module__ = 'main_pb2'
-  # @@protoc_insertion_point(class_scope:i6getraenkeabrechnungssystem3000.rpc.AbortRequest)
+  # @@protoc_insertion_point(class_scope:zischr.rpc.AbortRequest)
   ))
 _sym_db.RegisterMessage(AbortRequest)
 
 AbortResponse = _reflection.GeneratedProtocolMessageType('AbortResponse', (_message.Message,), dict(
   DESCRIPTOR = _ABORTRESPONSE,
   __module__ = 'main_pb2'
-  # @@protoc_insertion_point(class_scope:i6getraenkeabrechnungssystem3000.rpc.AbortResponse)
+  # @@protoc_insertion_point(class_scope:zischr.rpc.AbortResponse)
   ))
 _sym_db.RegisterMessage(AbortResponse)
 
@@ -600,16 +600,16 @@ DESCRIPTOR._options = _descriptor._ParseOptions(descriptor_pb2.FileOptions(), _b
 
 _TERMINALBACKEND = _descriptor.ServiceDescriptor(
   name='TerminalBackend',
-  full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalBackend',
+  full_name='zischr.rpc.TerminalBackend',
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=945,
-  serialized_end=1632,
+  serialized_start=867,
+  serialized_end=1292,
   methods=[
   _descriptor.MethodDescriptor(
     name='GetState',
-    full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalBackend.GetState',
+    full_name='zischr.rpc.TerminalBackend.GetState',
     index=0,
     containing_service=None,
     input_type=_TERMINALSTATEREQUEST,
@@ -618,7 +618,7 @@ _TERMINALBACKEND = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='Buy',
-    full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalBackend.Buy',
+    full_name='zischr.rpc.TerminalBackend.Buy',
     index=1,
     containing_service=None,
     input_type=_TERMINALBUYREQUEST,
@@ -627,7 +627,7 @@ _TERMINALBACKEND = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='AddDepositOrder',
-    full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalBackend.AddDepositOrder',
+    full_name='zischr.rpc.TerminalBackend.AddDepositOrder',
     index=2,
     containing_service=None,
     input_type=_TERMINALADDDEPOSITORDERREQUEST,
@@ -636,7 +636,7 @@ _TERMINALBACKEND = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='Scan',
-    full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalBackend.Scan',
+    full_name='zischr.rpc.TerminalBackend.Scan',
     index=3,
     containing_service=None,
     input_type=_TERMINALSCANREQUEST,
@@ -645,7 +645,7 @@ _TERMINALBACKEND = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='Abort',
-    full_name='i6getraenkeabrechnungssystem3000.rpc.TerminalBackend.Abort',
+    full_name='zischr.rpc.TerminalBackend.Abort',
     index=4,
     containing_service=None,
     input_type=_ABORTREQUEST,
