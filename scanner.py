@@ -42,7 +42,10 @@ if __name__ == "__main__":
         client_args = [args.bin, "client"]
         client_args += ["--terminalID", args.id]
         client_args += ["--endpoint", args.endpoint]
-        client_args += ["scan", "EAN:" + barcode]
+        if barcode == "13374204":
+            client_args += ["scan", "Magic:CashIn" ]
+        else:
+            client_args += ["scan", "EAN:" + barcode]
         print(client_args)
         subprocess.call(client_args)
 
