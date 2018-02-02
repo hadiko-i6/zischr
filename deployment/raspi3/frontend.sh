@@ -14,5 +14,5 @@ xinput set-prop ${CURSOR} "libinput Calibration Matrix" -1.4143646408839778, 0.0
 
 xset s off -dpms
 
-exec python3 ../../frontend/frontend.py $@
+exec python3 /zischr/frontend/frontend.py $@
 
