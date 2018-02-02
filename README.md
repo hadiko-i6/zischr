@@ -1,6 +1,8 @@
 # zischr
 
-zischr is a self-service accounting solution for moderate group sizes (15-20 people)
+zischr is a self-service point-of-sale & accounting solution for groups of 15-20 people.
+
+![Alt](https://github.com/hadiko-i6/zischr/wiki/screenshots/main-screen.png)
 
 ## Deployment on Raspberry Pi 3
 
