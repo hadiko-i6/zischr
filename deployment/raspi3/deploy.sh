@@ -48,6 +48,7 @@ $GOPATH/bin/dep ensure
 popd
 popd
 
+rm -rf "${INSTALLDIR}"
 make deploy DEPLOYDIR="${INSTALLDIR}"
 
 install -m 755 deployment/raspi3/frontend.sh ${INSTALLDIR}/frontend.sh

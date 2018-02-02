@@ -10,6 +10,10 @@ endif
 
 deploy:
 	@echo "[INFO] deploying to $(DEPLOYDIR)"
+	if [ -e $(DEPLOYDIR) ]; then \
+		echo [ERROR] $(DEPLOYDIR) already exists ;\
+		exit 1; \
+	fi
 	mkdir -p "$(DEPLOYDIR)"
 	go build -o $(DEPLOYDIR)/backend github.com/hadiko-i6/zischr/backend
 	cp -r frontend $(DEPLOYDIR)/frontend
