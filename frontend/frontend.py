@@ -67,7 +67,7 @@ class i6CashInWidget(QWidget):
         self.ui.Negate.clicked.connect(negate)
 
 class i6ConfirmWidget(QWidget):
-    def __init__(self, name, *args, **kwargs):
+    def __init__(self, name, nag, *args, **kwargs):
         super(i6ConfirmWidget, self).__init__(*args, **kwargs)
 
         self.ui = confirmgui.Ui_Form()
@@ -79,6 +79,27 @@ class i6ConfirmWidget(QWidget):
 
         self.ui.Yes.clicked.connect(lambda x: self.doneCB(True))
         self.ui.No.clicked.connect(lambda x: self.doneCB(False))
+
+        if nag:
+            self.nagTimer = QTimer()
+            self.nagTimer.timeout.connect(self.toggleNag)
+            self.nagTimer.start(400)
+            self.nagCounter = 0
+        else:
+            self.ui.nagLabel.setText("")
+            self.ui.nagLabel.setStyleSheet("")
+
+    def toggleNag(self, *args):
+        if self.nagCounter == 0:
+            self.ui.nagLabel.setText(">>> PAY YOUR DEBTS <<<")
+        elif self.nagCounter == 1:
+            self.ui.nagLabel.setText(">>>  PAY YOUR DEBTS  <<<")
+        elif self.nagCounter == 2:
+            self.ui.nagLabel.setText(">>>   PAY YOUR DEBTS   <<<")
+        elif self.nagCounter == 3:
+            self.ui.nagLabel.setText(">>>  PAY YOUR DEBTS  <<<")
+
+        self.nagCounter = (self.nagCounter + 1) % 4
 
 
 class i6MainWindow(QMainWindow):
@@ -201,6 +222,7 @@ class i6MainWindow(QMainWindow):
             account = self.sortedAccounts[i]
             newButton = QPushButton(account.DisplayName)
             newButton.userid = account.ID   # Append backend userid to button so we know who to bill if button is pressed
+            newButton.userBalance = account.Balance
             newButton.setStyleSheet("color: rgb(238, 238, 236);")
             newButton.setMinimumHeight(60)
             self.ui.buttonContainer.widget().layout().addWidget(newButton, math.floor(i/2), i % 2)     # Add buttons in zig-zag pattern
@@ -277,8 +299,9 @@ class i6MainWindow(QMainWindow):
     def NameButtonPressed(self, *args):
         clickedButton = self.sender()    # WTF why isn't this passed as argument?
         userID = clickedButton.userid
+        userBalance = clickedButton.userBalance
 
-        self.confirmWidget = i6ConfirmWidget(clickedButton.text())
+        self.confirmWidget = i6ConfirmWidget(clickedButton.text(), userBalance < 0)
         self.confirmWidget.doneCB = self.NameButtonPressedConfirmationCB
         self.confirmWidget.userID = userID
         self.ui.mainWidgetStack.insertWidget(1, self.confirmWidget)
