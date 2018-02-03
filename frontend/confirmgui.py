@@ -54,7 +54,8 @@ class Ui_Form(object):
         spacerItem5 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.gridLayout.addItem(spacerItem5, 1, 1, 1, 1)
         self.nagLabel = QtWidgets.QLabel(Form)
-        self.nagLabel.setStyleSheet("background-color: rgb(164, 0, 0);")
+        self.nagLabel.setStyleSheet("background-color: qlineargradient(spread:pad, x1:0.478022, y1:0, x2:0.516, y2:1, stop:0 rgba(164, 0, 0, 255), stop:1 rgba(137, 0, 0, 255));\n"
+"")
         self.nagLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.nagLabel.setObjectName("nagLabel")
         self.gridLayout.addWidget(self.nagLabel, 7, 1, 1, 3)

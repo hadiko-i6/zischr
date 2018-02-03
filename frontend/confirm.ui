@@ -166,7 +166,8 @@ font-size: 40px;</string>
    <item row="7" column="1" colspan="3">
     <widget class="QLabel" name="nagLabel">
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(164, 0, 0);</string>
+      <string notr="true">background-color: qlineargradient(spread:pad, x1:0.478022, y1:0, x2:0.516, y2:1, stop:0 rgba(164, 0, 0, 255), stop:1 rgba(137, 0, 0, 255));
+</string>
      </property>
      <property name="text">
       <string>&gt;&gt;&gt;  PAY YOUR DEBTS  &lt;&lt;&lt;</string>

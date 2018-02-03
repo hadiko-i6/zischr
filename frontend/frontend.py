@@ -290,10 +290,14 @@ class i6MainWindow(QMainWindow):
             account = self.sortedAccounts[i]
             nameWidget = QTableWidgetItem(account.DisplayName)
             self.ui.accountsList.setItem(math.floor(i / 2), 0 + columnoffset, nameWidget)
+            if account.Balance < 0:
+                nameWidget.setForeground(QBrush(QColor(249, 71, 71)))
 
             balanceWidget = QTableWidgetItem("%.2f€" % (account.Balance / 100))
             balanceWidget.setTextAlignment(Qt.AlignCenter | Qt.AlignVCenter)
             self.ui.accountsList.setItem(math.floor(i / 2), 1 + columnoffset, balanceWidget)
+            if account.Balance < 0:
+                balanceWidget.setForeground(QBrush(QColor(249, 71, 71)))
 
 
     def NameButtonPressed(self, *args):
