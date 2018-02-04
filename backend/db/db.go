@@ -3,12 +3,14 @@ package db
 import (
 	"time"
 	"encoding/json"
+	"fmt"
 )
 
 type DB interface {
 	GetOrDeriveProduct(productID string) (prod Product, err error)
 	CommitTransactions(accountID string, txes []Transaction) (inputError bool, err error)
 	Accounts() (accounts []Account, err error)
+	ProcessNeedsReviewTransactions() (err error)
 }
 
 type Product struct {
@@ -21,6 +23,10 @@ type Product struct {
 
 type Money struct {
 	cents int32
+}
+
+func (m Money) String() string {
+	return fmt.Sprintf("%d", m.cents)
 }
 
 func NewMoney(cents int32) Money {

@@ -40,6 +40,10 @@ var serverCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
+		if err := fsdb.ProcessNeedsReviewTransactions(); err != nil {
+			log.Fatalf("ProcessNeedsReviewTransactions returned an error: %s", err)
+		}
+
 		if (argsServer.postStoreHookPath) != "" {
 
 			postStoreHook := func() {

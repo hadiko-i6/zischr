@@ -423,3 +423,58 @@ func (db *FSDB) Accounts() (accounts []Account, err error) {
 
 	return accounts, nil
 }
+
+func (db *FSDB) ProcessNeedsReviewTransactions() (err error) {
+	db.lock.Lock()
+	defer db.lock.Unlock()
+
+	productWarnings := make(map[string]bool, len(db.productsByID))
+	for _, a := range db.accountsByID {
+		newTransactions := make([]Transaction, len(a.Transactions))
+		containsUpdates := false
+		for i := range a.Transactions {
+			newTransactions[i] = a.Transactions[i] // copy
+			tx := &newTransactions[i]
+			if !tx.NeedsReview {
+				continue
+			}
+			if tx.ProductIdentifier == "" {
+				log.Printf("error: transaction with NeedsReview but no ProductIdentifier: Account=%s Date=%s", a.ID, tx.Date)
+				return DBInconsistentError
+			}
+			product, ok := db.productsByID[tx.ProductIdentifier]
+			if !ok {
+				log.Printf("error: transaction with NeedsReview but unknown ProductIdentifier: Account=%s Date=%s", a.ID, tx.Date)
+				return DBInconsistentError
+			}
+			if product.NotInventoried && !productWarnings[product.ID]{
+				productWarnings[product.ID] = true
+				log.Printf("product ID=%s is not inventoried", product.ID)
+				continue
+			}
+			// not warning / aborting about products with Price == 0, this may make sense
+			if tx.Amount != NewMoney(0) {
+				log.Printf("error: transaction with NeedsReview but Amount != 0: Account=%s Date=%s Amount=%d", a.ID, tx.Date, tx.Amount)
+				return DBInconsistentError
+			}
+			log.Printf("updating transaction: Account=%s Date=%s Amount=%s", a.ID, tx.Date, product.UnitPrice)
+			tx.Amount = product.UnitPrice.Negate()
+			tx.Description = product.DisplayName
+			tx.NeedsReview = false
+			containsUpdates = true
+		}
+		if !containsUpdates {
+			continue
+		}
+		log.Printf("updated transactions in account %s, persisting to disk", a.ID)
+		oldTransactions := a.Transactions
+		a.Transactions = newTransactions
+		if err := db.persistAccount(a); err != nil {
+			log.Printf("error persisting account: '%s': %s", a.ID, err)
+			log.Printf("rolling back to old transactions in memory: %s")
+			a.Transactions = oldTransactions
+			return err// we have not implemented rollback
+		}
+	}
+	return nil
+}
