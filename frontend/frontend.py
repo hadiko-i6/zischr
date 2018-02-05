@@ -249,6 +249,13 @@ class i6MainWindow(QMainWindow):
 
         self.ui.currentOrderList.setHorizontalHeaderLabels(["Name", "Price"])
 
+        if len(self.state.PendingOrders):
+            self.ui.cancelButton.setEnabled(True)
+            self.ui.cancelButton.setStyleSheet("background-color: rgb(100, 19, 19);")
+        else:
+            self.ui.cancelButton.setEnabled(False)
+            self.ui.cancelButton.setStyleSheet("background-color: rgb(76, 50, 50); color: rgb(166, 166, 166);")
+
         for i in range(len(self.state.PendingOrders)):
             order = self.state.PendingOrders[i]
             if order.NeedsReview:
