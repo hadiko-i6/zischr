@@ -28,6 +28,8 @@ class Scanner:
                 time.sleep(1)
                 self._connect()
 
+
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Scanner')
@@ -35,18 +37,28 @@ if __name__ == "__main__":
     parser.add_argument('---endpoint', help='backend endpoint', default="localhost:8080")
     parser.add_argument('--bin', help='backend binary', required=True)
     parser.add_argument('--dev', help='Scanner TTY device', default='/dev/ttyUSB0')
+    parser.add_argument('--cashintoken', help='Barcode-token for opening the cash-in screen', required=True)
+    parser.add_argument('--verbose', help='Enable verbosity for debugging problems', action='store_true')
     args = parser.parse_args()
 
+    if args.verbose:
+        def printV(a):  # Verbose printing function for maximum efficiency ¯\_(ツ)_/¯
+            print(a, flush=True)
+    else:
+        def printV(a):
+            pass
 
     def scan_callback(barcode):
         client_args = [args.bin, "client"]
         client_args += ["--terminalID", args.id]
         client_args += ["--endpoint", args.endpoint]
-        if barcode == "13374204":
-            client_args += ["scan", "Magic:CashIn" ]
+        if barcode == args.cashintoken:
+            client_args += ["scan", "Magic:CashIn"]
+            printV("Scanned cashin-token: " + str(barcode))
         else:
             client_args += ["scan", "EAN:" + barcode]
-        print(client_args)
+            printV("Scanned EAN: " + str(barcode))
+        print(client_args, flush=True)
         subprocess.call(client_args)
 
     s = Scanner(scan_callback, args.dev)
